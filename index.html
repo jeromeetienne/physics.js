@@ -124,102 +124,22 @@
 			function createWorld() {
 				var worldAABB	= new b2AABB();
 				worldAABB.minVertex.Set(-1000, -1000);
-				worldAABB.maxVertex.Set(1000, 1000);
+				worldAABB.maxVertex.Set(2000, 1000);
 				
-				var gravity	= new b2Vec2(0, 300);
+				var gravity	= new b2Vec2(0, 500);
 				var doSleep	= true;
 				world		= new b2World(worldAABB, gravity, doSleep);
-				
-				createGround(world);
 				return world;
 			}		
 
 			function createGround(world) {
 				var groundSd	= new b2BoxDef();
-				groundSd.extents.Set(400, 30);
+				groundSd.extents.Set(800, 30);
 				groundSd.restitution	= 0.2;
 				var groundBd	= new b2BodyDef();
 				groundBd.AddShape(groundSd);
-				groundBd.position.Set(400, 470);
+				groundBd.position.Set(800, 470);
 				return world.CreateBody(groundBd);
-			}
-			
-			function createHelloWorld() {
-				// H
-				createBox(world, 50, 420, 10, 20, false);
-				createBox(world, 90, 420, 10, 20, false);
-				createBox(world, 70, 395, 30, 5, false);
-				createBox(world, 50, 370, 10, 20, false);
-				createBox(world, 90, 370, 10, 20, false);
-				
-				// E
-				createBox(world, 140, 435, 30, 5, false);
-				createBox(world, 120, 420, 10, 10, false);
-				createBox(world, 130, 405, 20, 5, false);
-				createBox(world, 120, 390, 10, 10, false);
-				createBox(world, 140, 375, 30, 5, true);
-				
-				// L
-				createBox(world, 200, 435, 20, 5, false);
-				createBox(world, 185, 400, 5, 30, false);
-				
-				// L
-				createBox(world, 250, 435, 20, 5, false);
-				createBox(world, 235, 400, 5, 30, false);
-				
-				// O
-				createBox(world, 300, 435, 20, 5, false);
-				createBox(world, 285, 405, 5, 25, false);
-				createBox(world, 315, 405, 5, 25, false);
-				createBox(world, 300, 375, 20, 5, false);
-				
-				// W
-				createBox(world, 390, 435, 40, 5, false);
-				createBox(world, 360, 390, 10, 40, false);
-				createBox(world, 420, 390, 10, 40, false);
-				createBox(world, 390, 415, 5, 15, false);
-				
-				// O
-				createBox(world, 460, 435, 20, 5, false);
-				createBox(world, 445, 405, 5, 25, false);
-				createBox(world, 475, 405, 5, 25, false);
-				createBox(world, 460, 375, 20, 5, false);
-				
-				// R
-				createBox(world, 495, 410, 5, 30, false);
-				createBox(world, 518, 425, 5, 15, false);
-				createBox(world, 515, 405, 15, 5, false);
-				createBox(world, 525, 390, 5, 10, false);
-				createBox(world, 510, 375, 20, 5, false);
-				
-				// L
-				createBox(world, 560, 435, 20, 5, false);
-				createBox(world, 545, 400, 5, 30, false);
-				
-				// D
-				createBox(world, 610, 435, 20, 5, false);
-				createBox(world, 595, 405, 5, 25, false);
-				createBox(world, 625, 405, 5, 25, false);
-				createBox(world, 610, 375, 20, 5, false);
-				
-				// !
-				createBox(world, 650, 430, 10, 10, false);
-				createBox(world, 650, 380, 10, 40, false);
-			}
-			
-			function createBox(world, x, y, width, height, fixed) {
-				if (typeof(fixed) == 'undefined') fixed = true;
-
-				var boxSd	= new b2BoxDef();
-				if (!fixed) boxSd.density = 1.0; 
-				boxSd.restitution = 0.0;
-				boxSd.friction	= 1.0;
-				boxSd.extents.Set(width, height);
-
-				var boxBd	= new b2BodyDef();
-				boxBd.AddShape(boxSd);
-				boxBd.position.Set(x,y);
-				return world.CreateBody(boxBd);
 			}
 			
 			function step(cnt) {
@@ -252,6 +172,21 @@
 			function createObstacles(world){
 				createObstacle(world, 80, 10, 500, 440, 0.9*Math.PI)
 			}
+			
+			function createPolyGround(world){
+				var points	= [[550, -10], [2000, 0], [2000, 60], [0, 60], [0, 0]];
+				var polySd	= new b2PolyDef();
+				polySd.restitution	= 0.2;
+				polySd.vertexCount	= points.length;
+				for (var i = 0; i < points.length; i++) {
+					polySd.vertices[i].Set(points[i][0], points[i][1]);
+				}				
+				var bodyDef	= new b2BodyDef();
+				bodyDef.AddShape(polySd);
+				bodyDef.position.Set(0, 440);
+				var body	= world.CreateBody(bodyDef)
+				return body;
+			}
 
 			function createDust(world){
 				// add random shit //
@@ -260,22 +195,19 @@
 				circleDef.friction	= 0.1;
 				circleDef.restitution	= 1;
 				
-				for (i = 0; i < 50; i++) {
+				for (i = 0; i < 10; i++) {
 					circleDef.radius = Math.random()*3+1;
-
 					
 					bodyDef = new b2BodyDef();
-					bodyDef.position.Set(Math.random()*35+15, 1);
 					bodyDef.allowSleep	= true;
 					bodyDef.linearDamping	= 0.1;
 					bodyDef.angularDamping	= 0.1;
 					bodyDef.AddShape(circleDef);
-					bodyDef.position.Set(Math.floor(Math.random()*1000), 420);
+					bodyDef.position.Set(Math.floor(Math.random()*2000), 420);
 								
 					body = world.CreateBody(bodyDef);
 				}
 			}
-
 
 			function createBall(world, x, y) {
 				var ballSd = new b2CircleDef();
@@ -297,35 +229,39 @@
 				wheel1Sd.density	= 1.0;
 				wheel1Sd.radius		= wheelRadius;
 				wheel1Sd.restitution	= 0.0;
-				wheel1Sd.friction	= 0.5;
+				wheel1Sd.friction	= 1.3;
 				var wheel1Bd		= new b2BodyDef();
 				wheel1Bd.AddShape(wheel1Sd);
-				wheel1Bd.position.Set(50, 50);
+				wheel1Bd.position.Set(50, 60);
 				var wheel1Body	= world.CreateBody(wheel1Bd)
 
 				// create one wheel
 				var wheel2Sd		= new b2CircleDef();
 				wheel2Sd.density	= 1.0;
 				wheel2Sd.radius		= wheelRadius;
-				wheel2Sd.restitution	= 0.0;
-				wheel2Sd.friction	= 1.2;
+				wheel2Sd.restitution	= 0.3;
+				wheel2Sd.friction	= 1.3;
 				var wheel2Bd		= new b2BodyDef();
 				wheel2Bd.AddShape(wheel2Sd);
-				wheel2Bd.position.Set(110, 50);
+				wheel2Bd.position.Set(110, 60);
 				var wheel2Body	= world.CreateBody(wheel2Bd)
 
+
+				// cart
 				var carSd	= new b2BoxDef();
 				carSd.density		= 0.5; 
 				carSd.restitution	= 0.0;
 				carSd.friction		= 1.0;
 				carSd.extents.Set(50, 10);
+				
 				var carBd	= new b2BodyDef();
 				carBd.AddShape(carSd);
 				carBd.position.Set(80,30);
 				var carBody	= world.CreateBody(carBd)
-				
+
+
 				var joint1Def = new b2RevoluteJointDef();
-				joint1Def.anchorPoint.Set(50, 50);
+				joint1Def.anchorPoint.Set(50, 60);
 				joint1Def.body1 = carBody;
 				joint1Def.body2 = wheel1Body;
 				joint1Def.motorSpeed	= 0.0 * Math.PI;
@@ -334,7 +270,7 @@
 				var joint1	= world.CreateJoint(joint1Def);
 				
 				var joint2Def = new b2RevoluteJointDef();
-				joint2Def.anchorPoint.Set(110, 50);
+				joint2Def.anchorPoint.Set(110, 60);
 				joint2Def.body1 = carBody;
 				joint2Def.body2 = wheel2Body;
 				joint2Def.motorSpeed	= 0 * Math.PI;
@@ -370,7 +306,6 @@
 
 			// main entry point
 			Event.observe(window, 'load', function() {
-				world		= createWorld();
 				ctx		= $('canvas').getContext('2d');
 				var canvasElm	= $('canvas');
 				canvasWidth	= parseInt(canvasElm.width);
@@ -378,26 +313,20 @@
 				canvasTop	= parseInt(canvasElm.style.top);
 				canvasLeft	= parseInt(canvasElm.style.left);
 				
-				//createHelloWorld();
+				world		= createWorld();		
 				
+				createGround(world);
+				//createPolyGround(world);
 				createCar(world, 50, 300);
 				createDust(world)
 				createObstacles(world);
-				Event.observe('canvas', 'click', function(e) {
-					createBall(world, Event.pointerX(e), Event.pointerY(e));
-					//if (Math.random() > 0.5) {
-					//	//createBox(world, Event.pointerX(e), Event.pointerY(e), 10, 10, false);
-					//	createBox(world, e.clientX, e.clientY, 10, 10, false);
-					//} else {
-					//	createBall(world, Event.pointerX(e), Event.pointerY(e));
-					//}
-				});
+
 				step();
 			});
 			</script>
 	</head>
 	<body style="margin:0px;">
-		<canvas id="canvas" width='800' height='500' style="background-color:#eeeeee;"></canvas>
+		<canvas id="canvas" width='1200' height='500' style="background-color:#eeeeee;"></canvas>
 	</body>
 
  </html>
