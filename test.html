@@ -1,0 +1,122 @@
+<html>
+<head>
+	<!-- libs -->
+	<!--[if IE]><script type="text/javascript" src="lib/excanvas.js"></script><![endif]-->
+	<script src="vendor/box2d/lib/prototype-1.6.0.2.js"></script>
+	
+	<!-- box2djs -->
+	<script src='vendor/box2d/js/box2d/common/b2Settings.js'></script>
+	<script src='vendor/box2d/js/box2d/common/math/b2Vec2.js'></script>
+	<script src='vendor/box2d/js/box2d/common/math/b2Mat22.js'></script>
+	<script src='vendor/box2d/js/box2d/common/math/b2Math.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2AABB.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2Bound.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2BoundValues.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2Pair.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2PairCallback.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2BufferedPair.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2PairManager.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2BroadPhase.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2Collision.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/Features.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2ContactID.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2ContactPoint.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2Distance.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2Manifold.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2OBB.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/b2Proxy.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/ClipVertex.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2Shape.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2ShapeDef.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2BoxDef.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2CircleDef.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2CircleShape.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2MassData.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2PolyDef.js'></script>
+	<script src='vendor/box2d/js/box2d/collision/shapes/b2PolyShape.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2Body.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2BodyDef.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2CollisionFilter.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2Island.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2TimeStep.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2ContactNode.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2Contact.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2ContactConstraint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2ContactConstraintPoint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2ContactRegister.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2ContactSolver.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2CircleContact.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2Conservative.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2NullContact.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2PolyAndCircleContact.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/contacts/b2PolyContact.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2ContactManager.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2World.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/b2WorldListener.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2JointNode.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2Joint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2JointDef.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2DistanceJoint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2DistanceJointDef.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2Jacobian.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2GearJoint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2GearJointDef.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2MouseJoint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2MouseJointDef.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2PrismaticJoint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2PrismaticJointDef.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2PulleyJoint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2PulleyJointDef.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2RevoluteJoint.js'></script>
+	<script src='vendor/box2d/js/box2d/dynamics/joints/b2RevoluteJointDef.js'></script>
+</head>
+<body>
+	Sujper body
+	<canvas id="canvas" width='800' height='500' style="background-color:#eeeeee;"></canvas>
+<script>
+var worldAABB	= new b2AABB();
+worldAABB.minVertex.Set(-1000, -1000);
+worldAABB.maxVertex.Set(1000, 1000);
+var gravity	= new b2Vec2(0, 300);
+var doSleep	= true;
+var world	= new b2World(worldAABB, gravity, doSleep);
+
+var circleSd = new b2CircleDef();
+circleSd.density = 1.0;
+circleSd.radius = 20;
+circleSd.restitution = 1.0;
+circleSd.friction = 0;
+var circleBd = new b2BodyDef();
+circleBd.AddShape(circleSd);
+circleBd.position.Set(100,100);
+var circleBody = world.CreateBody(circleBd);
+
+
+var jointDef = new b2RevoluteJointDef();
+jointDef.anchorPoint.Set(250, 200);
+jointDef.body1 = world.GetGroundBody();
+jointDef.body2 = circleBody;
+world.CreateJoint(jointDef);
+
+
+var ctx;
+var canvasWidth; 
+var canvasHeight; 
+function step(cnt) {
+	world.Step(1.0/60, 1);
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	drawWorld(world, ctx); // see demos/draw_world.js
+	setTimeout('step(' + (cnt || 0) + ')', 10);
+}
+Event.observe(window, 'load', function() {
+	setupWorld(world); // as you like
+	ctx = $('canvas').getContext('2d');
+	var canvasElm = $('canvas');
+	canvasWidth = parseInt(canvasElm.width);
+	canvasHeight = parseInt(canvasElm.height);
+	step();
+});
+</script>
+</body>
+</html>
+	
