@@ -2,10 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>SavageLook.com - Box2D JS Hello World</title>
+		<title>Html5 buggy</title>
 		<!--[if IE]><script type="text/javascript" src="vendor/box2d/lib/excanvas.js"></script><![endif]-->
 		<script src="vendor/box2d/lib/prototype-1.6.0.2.js"></script>
 		<script src="box2djs.js"></script>
+		<script src="easyBox2djs.js"></script>
 
 		<script src="js/jquery.min.js"></script>
 		<script src="js/jquery.hotkeys.js"></script>
@@ -246,6 +247,16 @@
 				wheel2Bd.position.Set(110, 60);
 				var wheel2Body	= world.CreateBody(wheel2Bd)
 
+				//eb2Box().attr({
+				//	density		: 0.5,
+				//	restitution	: 0,
+				//	friction	: 1.0
+				//}).toBody().position(80, 30)
+				
+				var slota	= eb2BoxDef().density(0.5).restitution(0).friction(1.0).size(50, 10).toBody().position(800, 30).toWorld(world)
+				//var slota	= eb2BoxDef().density(3).toBody();
+				console.log("slota", slota)
+				
 
 				// cart
 				var carSd	= new b2BoxDef();
@@ -277,6 +288,11 @@
 				joint2Def.motorTorque	= 5000000.0;
 				joint2Def.enableMotor	= true;	
 				var joint2	= world.CreateJoint(joint2Def);
+				
+				////
+				//eb2RevoluteJoint().anchorPoint(110, 60)
+				//	.body(carBody, wheel2Body)
+				//	.motor(0*Math.PI, 5000000.0).toBody();
 
 				jQuery(document).bind('keydown', 'right',function (evt){					
 					joint1.m_enableMotor	= false;
