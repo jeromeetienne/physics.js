@@ -247,29 +247,27 @@
 				wheel2Bd.position.Set(110, 60);
 				var wheel2Body	= world.CreateBody(wheel2Bd)
 
-				//eb2Box().attr({
-				//	density		: 0.5,
-				//	restitution	: 0,
-				//	friction	: 1.0
-				//}).toBody().position(80, 30)
+				eb2.boxDef().attr({
+					density		: 0.5,
+					restitution	: 0,
+					friction	: 1.0
+				}).size(50, 10).toBodyDef().position(400, 30).toBody(world)
 				
-				var slota	= eb2BoxDef().density(0.5).restitution(0).friction(1.0).size(50, 10).toBody().position(800, 30).toWorld(world)
-				//var slota	= eb2BoxDef().density(3).toBody();
-				console.log("slota", slota)
-				
+				// chained url version
+				var slota	= eb2.boxDef().density(0.5).restitution(0).friction(1.0).size(50, 10)
+							.toBodyDef().position(800, 30)
+							.toBody(world);
 
-				// cart
+				// expanded version
 				var carSd	= new b2BoxDef();
 				carSd.density		= 0.5; 
 				carSd.restitution	= 0.0;
 				carSd.friction		= 1.0;
 				carSd.extents.Set(50, 10);
-				
 				var carBd	= new b2BodyDef();
 				carBd.AddShape(carSd);
 				carBd.position.Set(80,30);
 				var carBody	= world.CreateBody(carBd)
-
 
 				var joint1Def = new b2RevoluteJointDef();
 				joint1Def.anchorPoint.Set(50, 60);
@@ -289,10 +287,9 @@
 				joint2Def.enableMotor	= true;	
 				var joint2	= world.CreateJoint(joint2Def);
 				
-				////
-				//eb2RevoluteJoint().anchorPoint(110, 60)
-				//	.body(carBody, wheel2Body)
-				//	.motor(0*Math.PI, 5000000.0).toBody();
+				//var joint2	= eb2RevoluteJoint().anchor(110, 60).body(carBody, wheel2Body)
+				//			.motor(0*Math.PI, 5000000.0)
+				//			.toJoint();
 
 				jQuery(document).bind('keydown', 'right',function (evt){					
 					joint1.m_enableMotor	= false;
