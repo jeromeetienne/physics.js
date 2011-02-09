@@ -86,6 +86,9 @@ eb2._createClass	= function(opts){
 	eb2[className]	= function(ctorDef) {
 		return new eb2[className].fn.init(ctorDef);
 	}
+	eb2[className].prototype	= {
+		
+	}
 }
 
 // possible to guess _attrNames by inspecting a b2BoxDef
