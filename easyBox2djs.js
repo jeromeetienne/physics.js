@@ -81,24 +81,67 @@ eb2.getFunction	= function(){
 eb2._createClass	= function(opts){
 	// TODO to write
 	var className	= opts._className;
+	var iClassName	= opts._iClassName;
 
 	// ctor
+	// TODO what is the purpose of this .fn ?
 	eb2[className]	= function(ctorDef) {
 		return new eb2[className].fn.init(ctorDef);
 	}
 	eb2[className].prototype	= {
-		
+		init		: function(ctorDef){
+			this._iClass	= ctorDef ? ctorDef : new eb2._global[iClassName]();
+			this._bindAttrHelpers()
+			return this;
+		},
+		get	: function(){
+			return this._iClass;
+		},
+		attr	: function(param1, param2){
+			if(typeof param1 == "object"){
+				console.assert(typeof param2 == "undefined")
+				for(var key in param1){
+					this.attr(key, param1[key]);
+				}
+				return this;
+			}else if(typeof param2 == "undefined"){
+				// getter key/param1
+				return this._iClass[param1];
+			}else {
+				console.assert(typeof param2 != "undefined")
+				// setter key/param1 val/param2
+				this._iClass[param1]	= param2;
+			}
+			return this;
+		},
+		_bindAttrHelpers	: function(){
+			// FIXIT is this self needed ???
+			var self	= this;
+			this._attrNames.forEach(function(key){
+				self[key]	= function(val){
+					return self.attr(key, val)
+				};
+			})
+		}
 	}
+	// TODO copy bunch of copound helper
+	for(var fctName in opts){
+		if( fctName[0] === "_" )	continue;
+		eb2[className].prototype[fctName]	= opts[fctName];
+	}
+	// magic line i dont understand
+	eb2[className].prototype.init.prototype = eb2[className].fn = eb2[className].prototype;
 }
 
 // possible to guess _attrNames by inspecting a b2BoxDef
 eb2._createClass({
 	_className	: "boxDef",
-	_iClassName	: "b2BoxDef",
-	_attrNames	: eb2._guessAttrNames("b2BoxDef"),
-	toBodyDef	: function(){	return eb2.bodyDef(this._iClass)		},
+	_iClassName	: "b2BoxDef",				// May be in createClass
+	_attrNames	: eb2._guessAttrNames("b2BoxDef"),	// May be in createClass
+	toBodyDef	: function(){	return eb2.bodyDef(this._iClass)	},
 	size		: function(w, h){
-		this._iClass.extents.Set(w, h); return this;
+		this._iClass.extents.Set(w, h);
+		return this;
 	}
 });
 
