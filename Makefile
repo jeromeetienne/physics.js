@@ -15,3 +15,9 @@ deployGhPage:
 	cp -a * /tmp/html5-buggyGhPages
 	(cd /tmp/html5-buggyGhPages && git add . && git commit -a -m "Another deployement" && git push origin gh-pages)
 	#rm -rf /tmp/html5-buggyGhPages
+
+docs:
+	dox --ribbon "http://github.com/jeromeetienne/EasyBox2djs"	\
+		--title "Easy Box2djs"					\
+		--desc "Easy API on top of Box2djs"			\
+		easyBox2djs.js > easyBox2djs.html
