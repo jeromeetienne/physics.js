@@ -17,11 +17,17 @@
  *   * support .toBodyDef({attr1: val1})
  * * a class for actual Body and Shape
  * * add the draw world in canvas
- * * add a basic loop
+ * * add a basic game loop
+ * * add a way to know the attribute by API
+ *   * this is a nice as kinda documentation
+ *   * so it goes in the easy part
  * * DONE createBaseDefClass
  *   * do a createShapeDefClass
  *   * do a createJointDefClass
  *   * remove the .init from createBaseDefClass
+ * * take various simple cases
+ *   * code them and use dox to generate the tutorial
+ *   * part of the easy
 */
 
 
@@ -54,7 +60,7 @@ eb2._guessAttrNames	= function(iClassName){
 }
 
 /**
- * Each object
+ * Create a class for Definitions
 */
 eb2._createDefClass	= function(opts){
 	// TODO to write
@@ -70,10 +76,6 @@ eb2._createDefClass	= function(opts){
 		return new eb2[className].fn.init(ctorDef);
 	}
 	eb2[className].prototype	= {
-		//init		: function(ctorDef){
-		//	this._iClass	= ctorDef ? ctorDef : new eb2._global[iClassName]();
-		//	return this;
-		//},
 		get	: function(){
 			return this._iClass;
 		},
@@ -159,6 +161,9 @@ eb2._createJointDefClass	= function(opts){
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * create the bodyDef class
+*/
 eb2._createDefClass({
 	_iClassName	: "b2BodyDef",
 	init		: function(shapeDef){	// overwrite normal .init()
@@ -179,9 +184,13 @@ eb2._createDefClass({
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * create all the Shape Definition class
+*/
+
 eb2._createShapeDefClass({
 	_iClassName	: "b2BoxDef",
-	size		: function(w, h){
+	size		: function(w, h){		// FIXIT extends is a max radius, not a size
 		console.assert(typeof w !== "undefined");
 		console.assert(typeof h !== "undefined");
 		this._iClass.extents.Set(w, h);
@@ -217,7 +226,33 @@ eb2._createJointDefClass({
 })
 
 eb2._createJointDefClass({
-	_iClassName	: "b2PrismaticJointDef"
+	_iClassName	: "b2PrismaticJointDef",
+	anchor		: function(x, y){
+		console.assert(typeof x !== "undefined");
+		console.assert(typeof y !== "undefined");
+		this._iClass.anchorPoint.Set(x, y);
+		return this;
+	},
+	axis		: function(x, y){
+		console.assert(typeof x !== "undefined");
+		console.assert(typeof y !== "undefined");
+		this._iClass.axis.Set(x, y);
+		return this;
+	},
+	translation	: function(lower, upper){
+		console.assert(typeof lower !== "undefined");
+		console.assert(typeof upper !== "undefined");
+		this.attr('lowerTranslation', lower);
+		this.attr('upperTranslation', upper);
+		return this;
+	},
+	body		: function(body1, body2){
+		console.assert(typeof body1 !== "undefined");
+		console.assert(typeof body2 !== "undefined");
+		this._iClass.body1	= body1;
+		this._iClass.body2	= body2;
+		return this;
+	}
 })
 
 eb2._createJointDefClass({

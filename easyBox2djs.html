@@ -147,7 +147,7 @@ code .this { color: #19469D; }</style>
 </tr>
 <tr class="code">
 <td class="docs">
-<p>Each object</p>
+<p>Create a class for Definitions</p>
 </td>
 <td class="code">
 <pre><code><span class="variable">eb2</span>.<span class="variable">_createDefClass</span>	= <span class="keyword">function</span>(<span class="variable">opts</span>){
@@ -164,10 +164,6 @@ code .this { color: #19469D; }</style>
 		<span class="keyword">return</span> <span class="keyword">new</span> <span class="variable">eb2</span>[<span class="variable">className</span>].<span class="variable">fn</span>.<span class="variable">init</span>(<span class="variable">ctorDef</span>);
 	}
 	<span class="variable">eb2</span>[<span class="variable">className</span>].<span class="variable">prototype</span>	= {
-		<span class="comment">//init		: function(ctorDef){</span>
-		<span class="comment">//	this._iClass	= ctorDef ? ctorDef : new eb2._global[iClassName]();</span>
-		<span class="comment">//	return this;</span>
-		<span class="comment">//},</span>
 		<span class="variable">get</span>	: <span class="keyword">function</span>(){
 			<span class="keyword">return</span> <span class="this">this</span>.<span class="variable">_iClass</span>;
 		},
@@ -255,9 +251,15 @@ code .this { color: #19469D; }</style>
 <span class="comment">//////////////////////////////////////////////////////////////////////////////////</span>
 <span class="comment">//		Create Body Definition Classes					//</span>
 <span class="comment">//////////////////////////////////////////////////////////////////////////////////</span>
-<span class="comment">//////////////////////////////////////////////////////////////////////////////////</span>
-
-<span class="variable">eb2</span>.<span class="variable">_createDefClass</span>({
+<span class="comment">//////////////////////////////////////////////////////////////////////////////////</span></code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>create the bodyDef class</p>
+</td>
+<td class="code">
+<pre><code><span class="variable">eb2</span>.<span class="variable">_createDefClass</span>({
 	<span class="variable">_iClassName</span>	: &<span class="variable">quot</span>;<span class="variable">b2BodyDef</span>&<span class="variable">quot</span>;,
 	<span class="variable">init</span>		: <span class="keyword">function</span>(<span class="variable">shapeDef</span>){	<span class="comment">// overwrite normal .init()</span>
 		<span class="this">this</span>.<span class="variable">_iClass</span>	= <span class="keyword">new</span> <span class="variable">b2BodyDef</span>();
@@ -275,11 +277,17 @@ code .this { color: #19469D; }</style>
 <span class="comment">//////////////////////////////////////////////////////////////////////////////////</span>
 <span class="comment">//		Create Shape Definition Classes					//</span>
 <span class="comment">//////////////////////////////////////////////////////////////////////////////////</span>
-<span class="comment">//////////////////////////////////////////////////////////////////////////////////</span>
-
-<span class="variable">eb2</span>.<span class="variable">_createShapeDefClass</span>({
+<span class="comment">//////////////////////////////////////////////////////////////////////////////////</span></code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>create all the Shape Definition class</p>
+</td>
+<td class="code">
+<pre><code><span class="variable">eb2</span>.<span class="variable">_createShapeDefClass</span>({
 	<span class="variable">_iClassName</span>	: &<span class="variable">quot</span>;<span class="variable">b2BoxDef</span>&<span class="variable">quot</span>;,
-	<span class="variable">size</span>		: <span class="keyword">function</span>(<span class="variable">w</span>, <span class="variable">h</span>){
+	<span class="variable">size</span>		: <span class="keyword">function</span>(<span class="variable">w</span>, <span class="variable">h</span>){		<span class="comment">// FIXIT extends is a max radius, not a size</span>
 		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">w</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
 		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">h</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
 		<span class="this">this</span>.<span class="variable">_iClass</span>.<span class="variable">extents</span>.<span class="class">Set</span>(<span class="variable">w</span>, <span class="variable">h</span>);
@@ -315,7 +323,33 @@ code .this { color: #19469D; }</style>
 })
 
 <span class="variable">eb2</span>.<span class="variable">_createJointDefClass</span>({
-	<span class="variable">_iClassName</span>	: &<span class="variable">quot</span>;<span class="variable">b2PrismaticJointDef</span>&<span class="variable">quot</span>;
+	<span class="variable">_iClassName</span>	: &<span class="variable">quot</span>;<span class="variable">b2PrismaticJointDef</span>&<span class="variable">quot</span>;,
+	<span class="variable">anchor</span>		: <span class="keyword">function</span>(<span class="variable">x</span>, <span class="variable">y</span>){
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">x</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">y</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="this">this</span>.<span class="variable">_iClass</span>.<span class="variable">anchorPoint</span>.<span class="class">Set</span>(<span class="variable">x</span>, <span class="variable">y</span>);
+		<span class="keyword">return</span> <span class="this">this</span>;
+	},
+	<span class="variable">axis</span>		: <span class="keyword">function</span>(<span class="variable">x</span>, <span class="variable">y</span>){
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">x</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">y</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="this">this</span>.<span class="variable">_iClass</span>.<span class="variable">axis</span>.<span class="class">Set</span>(<span class="variable">x</span>, <span class="variable">y</span>);
+		<span class="keyword">return</span> <span class="this">this</span>;
+	},
+	<span class="variable">translation</span>	: <span class="keyword">function</span>(<span class="variable">lower</span>, <span class="variable">upper</span>){
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">lower</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">upper</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="this">this</span>.<span class="variable">attr</span>(<span class="string">'lowerTranslation'</span>, <span class="variable">lower</span>);
+		<span class="this">this</span>.<span class="variable">attr</span>(<span class="string">'upperTranslation'</span>, <span class="variable">upper</span>);
+		<span class="keyword">return</span> <span class="this">this</span>;
+	},
+	<span class="variable">body</span>		: <span class="keyword">function</span>(<span class="variable">body1</span>, <span class="variable">body2</span>){
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">body1</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">body2</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
+		<span class="this">this</span>.<span class="variable">_iClass</span>.<span class="variable">body1</span>	= <span class="variable">body1</span>;
+		<span class="this">this</span>.<span class="variable">_iClass</span>.<span class="variable">body2</span>	= <span class="variable">body2</span>;
+		<span class="keyword">return</span> <span class="this">this</span>;
+	}
 })
 
 <span class="variable">eb2</span>.<span class="variable">_createJointDefClass</span>({

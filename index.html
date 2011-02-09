@@ -124,10 +124,10 @@
 
 			function createWorld() {
 				var worldAABB	= new b2AABB();
-				worldAABB.minVertex.Set(-1000, -1000);
+				worldAABB.minVertex.Set(0, -1000);
 				worldAABB.maxVertex.Set(2000, 1000);
 				
-				var gravity	= new b2Vec2(0, 500);
+				var gravity	= new b2Vec2(0, 400);
 				var doSleep	= true;
 				world		= new b2World(worldAABB, gravity, doSleep);
 				return world;
@@ -139,6 +139,52 @@
 					.toBodyDef()
 						.position(800, 470)
 					.toBody(world)
+			}
+			
+			/**
+			 * Test if this is working with easybox2d.js api
+			*/
+			var myCreatePoly = function(world, x, y, points, fixed) {
+				var polySd = new b2PolyDef();
+				if (!fixed) polySd.density = 1.0;
+				polySd.vertexCount = points.length;
+				for (var i = 0; i < points.length; i++) {
+					console.log("points", i, points[i])
+					polySd.vertices[i].Set(points[i][0], points[i][1]);
+				}
+				var polyBd = new b2BodyDef();
+				polyBd.AddShape(polySd);
+				polyBd.position.Set(x,y);
+				return world.CreateBody(polyBd)
+			};
+			
+			function createGround2(world){
+				var createOne	= function(x1, y1, x2, y2, h){				
+					var dx		= x2-x1;
+					var dy		= y2-y1;
+					var centerX	= x1 + dx/2;
+					var centerY	= y1 + dy/2;
+					var diagLen	= Math.sqrt(dx*dx + dy*dy)
+					var angle	= Math.atan2(dy, dx)
+					eb2.boxDef().size(diagLen/2, h).localRotation(angle)
+						.toBodyDef().position(centerX, centerY)
+						.toBody(world)
+				}
+				
+				var groundX	= 0;
+				var groundY	= 400;
+				var groundW	= 50;
+				var groundMaxDy	= 50;
+				var worldW	= 2000;
+				console.dir(world)
+
+				for(; groundX < worldW; groundX += groundW){
+					var groundDy	= Math.floor(Math.random()*groundMaxDy) - groundMaxDy/2;
+					var newGroundY	= groundY + groundDy;
+					createOne(groundX, groundY, groundX+groundW, newGroundY, 5)
+					groundY		= newGroundY;
+				}
+				
 			}
 			
 			function step(cnt) {
@@ -194,7 +240,7 @@
 							.allowSleep(true)
 							.linearDamping(0.1)
 							.angularDamping(0.1)
-							.position(Math.floor(Math.random()*2000), 420)
+							.position(Math.floor(Math.random()*2000), 50)
 						.toBody(world)
 				}
 			}
@@ -223,6 +269,9 @@
 							.enableMotor(true)
 							.toJoint(world);
 
+				// TODO after a while the keyboard is disabled
+				// - not sure why... for sure it is a bug
+				// - compatibility issue jquery and prottype....
 				jQuery(document).bind('keydown', 'right',function (evt){					
 					joint1.m_enableMotor	= false;
 					joint2.m_enableMotor	= true;
@@ -235,18 +284,63 @@
 					joint2.SetMotorSpeed(0 * Math.PI);				
 					return false;
 				});
+			}
+
+			function createCar2(world, x, y) {
+				var wheelRadius	= 20;
+				
+				// create one wheel
+				var carBody	= eb2.boxDef().density(0.5).restitution(0).friction(1.0).size(50, 10)
+							.toBodyDef().position(380, 30)
+							.toBody(world)
+
+				var axle1Body	= eb2.boxDef().density(0.5).restitution(0).friction(1.0).size(5, 10)
+							.toBodyDef().position(350, 60)
+							.toBody(world)
+				
+				var pJoint1	= eb2.prismaticJointDef().body(carBody, axle1Body)
+							.anchor(350,70).axis(0,1)
+							.translation(0, 0)
+							.motorSpeed(0* Math.PI).motorForce(50000000.0).enableMotor(true)
+							.toJoint(world);				
+				var wheel1Body	= eb2.circleDef().density(1.0).radius(wheelRadius)
+							.restitution(0.3).friction(1.3)
+							.toBodyDef().position(350, 70)
+							.toBody(world)
+				var rJoint1	= eb2.revoluteJointDef().anchor(350,70).body(axle1Body, wheel1Body)
+							.motorSpeed(0* Math.PI).motorTorque(5000000000.0)
+							.enableMotor(true)
+							.toJoint(world);
+
+
+				jQuery(document).bind('keydown', 'right',function (evt){
+					rJoint1.SetMotorSpeed(100.0 * Math.PI);
+					return false;
+				});
+				jQuery(document).bind('keyup', 'right',function (evt){
+					rJoint1.SetMotorSpeed(0 * Math.PI);
+					return false;
+				});
+
 				jQuery(document).bind('keydown', 'left',function (evt){					
-					joint2.m_enableMotor	= false;
-					joint1.m_enableMotor	= true;
-					joint1.m_motorSpeed	= -4.0 * Math.PI;
+					rJoint1.SetMotorSpeed(-1.0 * Math.PI);
 					return false;
 				});
 				jQuery(document).bind('keyup', 'left',function (evt){
-					joint2.m_enableMotor	= false;
-					joint1.m_enableMotor	= true;
-					joint1.SetMotorSpeed(0 * Math.PI);				
+					rJoint1.SetMotorSpeed(0 * Math.PI);
 					return false;
 				});
+
+
+
+				var wheel2Body	= eb2.circleDef().density(1.0).radius(wheelRadius)
+							.restitution(0.3).friction(1.3)
+							.toBodyDef().position(410, 70)
+							.toBody(world)
+				var rJoint2	= eb2.revoluteJointDef().anchor(410,60).body(carBody, wheel2Body)
+							.motorSpeed(0* Math.PI).motorTorque(5000000.0)
+							.enableMotor(true)
+							.toJoint(world);
 			}
 
 			// main entry point
@@ -260,11 +354,13 @@
 				
 				world		= createWorld();		
 				
-				createGround(world);
+				//createGround(world);
+				//createObstacles(world);
+				createGround2(world);
 				//createPolyGround(world);
-				createCar(world, 50, 300);
+				createCar(world);
+				//createCar2(world);
 				createDust(world)
-				createObstacles(world);
 
 				step();
 			});
