@@ -134,13 +134,11 @@
 			}		
 
 			function createGround(world) {
-				var groundSd	= new b2BoxDef();
-				groundSd.extents.Set(800, 30);
-				groundSd.restitution	= 0.2;
-				var groundBd	= new b2BodyDef();
-				groundBd.AddShape(groundSd);
-				groundBd.position.Set(800, 470);
-				return world.CreateBody(groundBd);
+				return eb2.boxDef()
+						.size(800,30).restitution(0.2)
+					.toBodyDef()
+						.position(800, 470)
+					.toBody(world)
 			}
 			
 			function step(cnt) {
@@ -157,17 +155,16 @@
 			
 			
 			function createObstacle(world, shapeW, shapeH, posX, posY, rotation){
-				var boxSd	= new b2BoxDef();
-				boxSd.density		= 0; 
-				boxSd.restitution	= 0.0;
-				boxSd.friction		= 1.0;
-				boxSd.localRotation	= rotation;
-				boxSd.extents.Set(shapeW, shapeH);
-				var boxBd	= new b2BodyDef();
-				boxBd.AddShape(boxSd);
-				boxBd.position.Set(posX, posY);
-				var boxBody	= world.CreateBody(boxBd)
-				return boxBody;
+				return eb2.boxDef().attr({
+							density		: 0,
+							restitution	: 0,
+						 	friction	: 1.0,
+							localRotation	: rotation,
+						})
+						.size(shapeW, shapeH)
+					.toBodyDef()
+						.position(posX, posY)
+					.toBody(world)
 			}
 			
 			function createObstacles(world){
@@ -190,106 +187,41 @@
 			}
 
 			function createDust(world){
-				// add random shit //
-				circleDef = new b2CircleDef();
-				circleDef.density	= 0.01;
-				circleDef.friction	= 0.1;
-				circleDef.restitution	= 1;
-				
-				for (i = 0; i < 10; i++) {
-					circleDef.radius = Math.random()*3+1;
-					
-					bodyDef = new b2BodyDef();
-					bodyDef.allowSleep	= true;
-					bodyDef.linearDamping	= 0.1;
-					bodyDef.angularDamping	= 0.1;
-					bodyDef.AddShape(circleDef);
-					bodyDef.position.Set(Math.floor(Math.random()*2000), 420);
-								
-					body = world.CreateBody(bodyDef);
+				for (i = 0; i < 20; i++) {
+					eb2.circleDef()
+							.density(0.01).friction(0.1).restitution(1).radius(Math.random()*3+1)
+						.toBodyDef()
+							.allowSleep(true)
+							.linearDamping(0.1)
+							.angularDamping(0.1)
+							.position(Math.floor(Math.random()*2000), 420)
+						.toBody(world)
 				}
 			}
 
-			function createBall(world, x, y) {
-				var ballSd = new b2CircleDef();
-				ballSd.density	= 1.0;
-				ballSd.radius	= 20;
-				ballSd.restitution = 0.0;
-				ballSd.friction = 0.5;
-				var ballBd = new b2BodyDef();
-				ballBd.AddShape(ballSd);
-				ballBd.position.Set(x,y);
-				return world.CreateBody(ballBd);
-			}
-			
 			function createCar(world, x, y) {
 				var wheelRadius	= 20;
 				
 				// create one wheel
-				var wheel1Sd		= new b2CircleDef();
-				wheel1Sd.density	= 1.0;
-				wheel1Sd.radius		= wheelRadius;
-				wheel1Sd.restitution	= 0.0;
-				wheel1Sd.friction	= 1.3;
-				var wheel1Bd		= new b2BodyDef();
-				wheel1Bd.AddShape(wheel1Sd);
-				wheel1Bd.position.Set(50, 60);
-				var wheel1Body	= world.CreateBody(wheel1Bd)
-
-				// create one wheel
-				var wheel2Sd		= new b2CircleDef();
-				wheel2Sd.density	= 1.0;
-				wheel2Sd.radius		= wheelRadius;
-				wheel2Sd.restitution	= 0.3;
-				wheel2Sd.friction	= 1.3;
-				var wheel2Bd		= new b2BodyDef();
-				wheel2Bd.AddShape(wheel2Sd);
-				wheel2Bd.position.Set(110, 60);
-				var wheel2Body	= world.CreateBody(wheel2Bd)
-
-				eb2.boxDef().attr({
-					density		: 0.5,
-					restitution	: 0,
-					friction	: 1.0
-				}).size(50, 10).toBodyDef().position(400, 30).toBody(world)
-				
-				// chained url version
-				var slota	= eb2.boxDef().density(0.5).restitution(0).friction(1.0).size(50, 10)
-							.toBodyDef().position(800, 30)
-							.toBody(world);
-
-				// expanded version
-				var carSd	= new b2BoxDef();
-				carSd.density		= 0.5; 
-				carSd.restitution	= 0.0;
-				carSd.friction		= 1.0;
-				carSd.extents.Set(50, 10);
-				var carBd	= new b2BodyDef();
-				carBd.AddShape(carSd);
-				carBd.position.Set(80,30);
-				var carBody	= world.CreateBody(carBd)
-
-				var joint1Def = new b2RevoluteJointDef();
-				joint1Def.anchorPoint.Set(50, 60);
-				joint1Def.body1 = carBody;
-				joint1Def.body2 = wheel1Body;
-				joint1Def.motorSpeed	= 0.0 * Math.PI;
-				joint1Def.motorTorque	= 5000000.0;
-				joint1Def.enableMotor	= true;
-				var joint1	= world.CreateJoint(joint1Def);
-				
-				var joint2Def = new b2RevoluteJointDef();
-				joint2Def.anchorPoint.Set(110, 60);
-				joint2Def.body1 = carBody;
-				joint2Def.body2 = wheel2Body;
-				joint2Def.motorSpeed	= 0 * Math.PI;
-				joint2Def.motorTorque	= 5000000.0;
-				joint2Def.enableMotor	= true;	
-				var joint2	= world.CreateJoint(joint2Def);
-				
-				//var joint2	= eb2RevoluteJoint().anchor(110, 60).body(carBody, wheel2Body)
-				//			.motor(0*Math.PI, 5000000.0)
-				//			.toJoint();
+				var wheel1Body	= eb2.circleDef().density(1.0).radius(wheelRadius)
+							.restitution(0.3).friction(1.3)
+							.toBodyDef().position(50, 60)
+							.toBody(world)
+				var wheel2Body	= eb2.circleDef().density(1.0).radius(wheelRadius)
+							.restitution(0.3).friction(1.3)
+							.toBodyDef().position(110, 60)
+							.toBody(world)
+				var carBody	= eb2.boxDef().density(0.5).restitution(0).friction(1.0).size(50, 10)
+							.toBodyDef().position(80, 30)
+							.toBody(world)
+				var joint1	= eb2.revoluteJointDef().anchor(50,60).body(carBody, wheel1Body)
+							.motorSpeed(0* Math.PI).motorTorque(5000000.0)
+							.enableMotor(true)
+							.toJoint(world);
+				var joint2	= eb2.revoluteJointDef().anchor(110,60).body(carBody, wheel2Body)
+							.motorSpeed(0* Math.PI).motorTorque(5000000.0)
+							.enableMotor(true)
+							.toJoint(world);
 
 				jQuery(document).bind('keydown', 'right',function (evt){					
 					joint1.m_enableMotor	= false;

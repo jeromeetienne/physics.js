@@ -12,6 +12,16 @@
  *   * bunch of attribute helpers, aka method in name of the key
  *   * .get() return iClass
  *   * bunch of helpers which does more
+ * * for shapeDefinition
+ *   * support eb2.boxDef({attr1: val1})
+ *   * support .toBodyDef({attr1: val1})
+ * * a class for actual Body and Shape
+ * * add the draw world in canvas
+ * * add a basic loop
+ * * DONE createBaseDefClass
+ *   * do a createShapeDefClass
+ *   * do a createJointDefClass
+ *   * remove the .init from createBaseDefClass
 */
 
 
@@ -43,45 +53,16 @@ eb2._guessAttrNames	= function(iClassName){
 	return attrs;
 }
 
-eb2._attrFunction	= function(param1, param2){
-	if(typeof param1 == "object"){
-		console.assert(typeof param2 == "undefined")
-		for(var key in param1){
-			this.attr(key, param1[key]);
-		}
-		return this;
-	}else if(typeof param2 == "undefined"){
-		// getter key/param1
-		return this._iClass[param1];
-	}else {
-		console.assert(typeof param2 != "undefined")
-		// setter key/param1 val/param2
-		this._iClass[param1]	= param2;
-	}
-	return this;
-}
-
-eb2._bindAttrHelpers	= function(){
-	// FIXIT is this self needed ???
-	var self	= this;
-	this._attrs.forEach(function(key){
-		self[key]	= function(val){
-			return self.attr(key, val)
-		};
-	})
-}
-
-eb2.getFunction	= function(){
-	return this._iClass;
-}
-
 /**
  * Each object
 */
-eb2._createClass	= function(opts){
+eb2._createDefClass	= function(opts){
 	// TODO to write
-	var className	= opts._className;
 	var iClassName	= opts._iClassName;
+	var className	= opts._className	|| (opts._iClassName.substr(2,1).toLowerCase() + opts._iClassName.substr(3));
+	var attrNames	= opts._attrNames	|| eb2._guessAttrNames(iClassName);
+
+	console.assert(typeof opts.init === "function")
 
 	// ctor
 	// TODO what is the purpose of this .fn ?
@@ -89,11 +70,10 @@ eb2._createClass	= function(opts){
 		return new eb2[className].fn.init(ctorDef);
 	}
 	eb2[className].prototype	= {
-		init		: function(ctorDef){
-			this._iClass	= ctorDef ? ctorDef : new eb2._global[iClassName]();
-			this._bindAttrHelpers()
-			return this;
-		},
+		//init		: function(ctorDef){
+		//	this._iClass	= ctorDef ? ctorDef : new eb2._global[iClassName]();
+		//	return this;
+		//},
 		get	: function(){
 			return this._iClass;
 		},
@@ -113,42 +93,79 @@ eb2._createClass	= function(opts){
 				this._iClass[param1]	= param2;
 			}
 			return this;
-		},
-		_bindAttrHelpers	: function(){
-			// FIXIT is this self needed ???
-			var self	= this;
-			this._attrNames.forEach(function(key){
-				self[key]	= function(val){
-					return self.attr(key, val)
-				};
-			})
 		}
 	}
+	// for each attribute, alias attrKey(val) to attr(key,val)
+	attrNames.forEach(function(key){
+		eb2[className].prototype[key]	= function(val){
+			//console.log("attr helper", key, val)
+			return this.attr(key, val)
+		};
+	})
+
 	// TODO copy bunch of copound helper
 	for(var fctName in opts){
 		if( fctName[0] === "_" )	continue;
 		eb2[className].prototype[fctName]	= opts[fctName];
 	}
+
 	// magic line i dont understand
 	eb2[className].prototype.init.prototype = eb2[className].fn = eb2[className].prototype;
 }
 
-// possible to guess _attrNames by inspecting a b2BoxDef
-eb2._createClass({
-	_className	: "boxDef",
-	_iClassName	: "b2BoxDef",				// May be in createClass
-	_attrNames	: eb2._guessAttrNames("b2BoxDef"),	// May be in createClass
-	toBodyDef	: function(){	return eb2.bodyDef(this._iClass)	},
-	size		: function(w, h){
-		this._iClass.extents.Set(w, h);
-		return this;
-	}
-});
+/**
+ * Create a ShapeDef Class
+ *
+ * - create the class itself, dont instanciate with the object of this class
+ * - derived from eb2._createDefClass
+*/
+eb2._createShapeDefClass	= function(opts){
+	var iClassName	= opts._iClassName;
+	opts.init	= function(attrs){
+		this._iClass	= new eb2._global[iClassName]();
+		if( attrs )	this.attr(attrs);
+		return this;		
+	};
+	opts.toBodyDef	= function(attrs){
+		var bodyDef	= eb2.bodyDef(this._iClass)
+		if( attrs )	bodyDef.attr(attrs);
+		return bodyDef;
+	};
+	return eb2._createDefClass(opts)
+}
 
-eb2._createClass({
-	_className	: "BodyDef",
+/**
+ * Create a JointDef Class
+ *
+ * - create the class itself, dont instanciate with the object of this class
+ * - derived from eb2._createDefClass
+*/
+eb2._createJointDefClass	= function(opts){
+	var iClassName	= opts._iClassName;
+	opts.init	= function(attrs){
+		this._iClass	= new eb2._global[iClassName]();
+		if( attrs )	this.attr(attrs);
+		return this;		
+	};
+	opts.toJoint	= function(world){
+		return world.CreateJoint(this._iClass);
+	}
+	return eb2._createDefClass(opts)
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//		Create Body Definition Classes					//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+eb2._createDefClass({
 	_iClassName	: "b2BodyDef",
-	_attrNames	: eb2._guessAttrNames("b2BodyDef"),
+	init		: function(shapeDef){	// overwrite normal .init()
+		this._iClass	= new b2BodyDef();
+		this._iClass.AddShape(shapeDef);
+		return this;
+	},
 	toBody		: function(world){	return world.CreateBody(this._iClass);	},
 	position	: function(x, y){
 		this._iClass.position.Set(x, y);
@@ -157,60 +174,69 @@ eb2._createClass({
 })
 
 //////////////////////////////////////////////////////////////////////////////////
-//		eb2BoxDef							//
+//////////////////////////////////////////////////////////////////////////////////
+//		Create Shape Definition Classes					//
+//////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-eb2.boxDef	= function(ctorDef) {
-	return new eb2.boxDef.fn.init(ctorDef);
-}
-
-eb2.boxDef.prototype = {
-	init		: function(ctorDef){
-		this._iClass	= ctorDef ? ctorDef : new b2BoxDef();
-		this._attrs	= ['density', 'restitution', 'friction'];
-		this._bindAttrHelpers();
-		return this;
-	},
-	toBodyDef	: function(){
-		return eb2.bodyDef(this._iClass)
-	},
+eb2._createShapeDefClass({
+	_iClassName	: "b2BoxDef",
 	size		: function(w, h){
+		console.assert(typeof w !== "undefined");
+		console.assert(typeof h !== "undefined");
 		this._iClass.extents.Set(w, h);
 		return this;
-	},
-	get		: eb2._getFunction,
-	attr		: eb2._attrFunction,
-	_bindAttrHelpers: eb2._bindAttrHelpers,
-};
+	}
+});
 
-// magic line i dont understand
-eb2.boxDef.prototype.init.prototype = eb2.boxDef.fn = eb2.boxDef.prototype;
+eb2._createShapeDefClass({
+	_iClassName	: "b2CircleDef"
+});
+
+eb2._createShapeDefClass({
+	_iClassName	: "b2PolyDef"
+});
 
 
 //////////////////////////////////////////////////////////////////////////////////
-//		eb2.bodyDef							//
+//////////////////////////////////////////////////////////////////////////////////
+//		Create Joint Definition Classes					//
+//////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-eb2.bodyDef	= function(ctorDef) {
-	return new eb2.bodyDef.fn.init(ctorDef);
-}
+eb2._createJointDefClass({
+	_iClassName	: "b2DistanceJointDef"
+})
 
-eb2.bodyDef.fn = eb2.bodyDef.prototype = {
-	init		: function(shapeDef){
-		this._bodyDef	= new b2BodyDef();
-		this._bodyDef.AddShape(shapeDef);
+eb2._createJointDefClass({
+	_iClassName	: "b2GearJointDef"
+})
+
+eb2._createJointDefClass({
+	_iClassName	: "b2MouseJointDef"
+})
+
+eb2._createJointDefClass({
+	_iClassName	: "b2PrismaticJointDef"
+})
+
+eb2._createJointDefClass({
+	_iClassName	: "b2PulleyJointDef"
+})
+
+eb2._createJointDefClass({
+	_iClassName	: "b2RevoluteJointDef",
+	anchor		: function(x, y){
+		console.assert(typeof x !== "undefined");
+		console.assert(typeof y !== "undefined");
+		this._iClass.anchorPoint.Set(x, y);
 		return this;
 	},
-	get		: function(){
-		return this._bodyDef;
-	},
-	toBody	: function(world){
-		return world.CreateBody(this._bodyDef);
-	},
-	position	: function(x, y){
-		this._bodyDef.position.Set(x, y);
+	body		: function(body1, body2){
+		console.assert(typeof body1 !== "undefined");
+		console.assert(typeof body2 !== "undefined");
+		this._iClass.body1	= body1;
+		this._iClass.body2	= body2;
 		return this;
 	}
-};
-
-eb2.bodyDef.fn.init.prototype = eb2.bodyDef.fn;
+})
