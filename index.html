@@ -6,122 +6,15 @@
 		<!--[if IE]><script type="text/javascript" src="vendor/box2d/lib/excanvas.js"></script><![endif]-->
 		<script src="vendor/box2d/lib/prototype-1.6.0.2.js"></script>
 		<script src="box2djs.js"></script>
-		<script src="easyBox2djs.js"></script>
+		<script src="easyBox2d.js"></script>
+		<script src="easyBox2d-drawworld.js"></script>
 
 		<script src="js/jquery.min.js"></script>
 		<script src="js/jquery.hotkeys.js"></script>
 		
 		<script type="text/javascript">
 			jQuery.noConflict();
-			var world;
-			var ctx;
-			var canvasWidth;
-			var canvasHeight;
-			var canvasTop;
-			var canvasLeft;
 			
-			function drawWorld(world, context) {
-				for (var j = world.m_jointList; j; j = j.m_next) {
-					drawJoint(j, context);
-				}
-				for (var b = world.m_bodyList; b; b = b.m_next) {
-					for (var s = b.GetShapeList(); s != null; s = s.GetNext()) {
-						drawShape(s, context);
-					}
-				}		
-			}
-			
-			function drawJoint(joint, context) {
-				var b1 = joint.m_body1;
-				var b2 = joint.m_body2;
-				var x1 = b1.m_position;
-				var x2 = b2.m_position;
-				var p1 = joint.GetAnchor1();
-				var p2 = joint.GetAnchor2();
-				context.strokeStyle = '#00eeee';
-				context.beginPath();
-				switch (joint.m_type) {
-				case b2Joint.e_distanceJoint:
-					context.moveTo(p1.x, p1.y);
-					context.lineTo(p2.x, p2.y);
-					break;
-			
-				case b2Joint.e_pulleyJoint:
-					// TODO
-					break;
-			
-				default:
-					if (b1 == world.m_groundBody) {
-						context.moveTo(p1.x, p1.y);
-						context.lineTo(x2.x, x2.y);
-					}
-					else if (b2 == world.m_groundBody) {
-						context.moveTo(p1.x, p1.y);
-						context.lineTo(x1.x, x1.y);
-					}
-					else {
-						context.moveTo(x1.x, x1.y);
-						context.lineTo(p1.x, p1.y);
-						context.lineTo(x2.x, x2.y);
-						context.lineTo(p2.x, p2.y);
-					}
-					break;
-				}
-				context.stroke();
-			}
-			
-			function drawShape(shape, context) {
-				context.strokeStyle = '#ffffff';
-				if (shape.density == 1.0) {
-					context.fillStyle = "red";
-				} else {
-					context.fillStyle = "black";
-				}
-				context.beginPath();
-				switch (shape.m_type) {
-				case b2Shape.e_circleShape:
-					{
-						var circle = shape;
-						var pos = circle.m_position;
-						var r = circle.m_radius;
-						var segments = 16.0;
-						var theta = 0.0;
-						var dtheta = 2.0 * Math.PI / segments;
-						
-						// draw circle
-						context.moveTo(pos.x + r, pos.y);
-						for (var i = 0; i < segments; i++) {
-							var d = new b2Vec2(r * Math.cos(theta), r * Math.sin(theta));
-							var v = b2Math.AddVV(pos, d);
-							context.lineTo(v.x, v.y);
-							theta += dtheta;
-						}
-						context.lineTo(pos.x + r, pos.y);
-				
-						// draw radius
-						context.moveTo(pos.x, pos.y);
-						var ax = circle.m_R.col1;
-						var pos2 = new b2Vec2(pos.x + r * ax.x, pos.y + r * ax.y);
-						context.lineTo(pos2.x, pos2.y);
-					}
-					break;
-				case b2Shape.e_polyShape:
-					{
-						var poly = shape;
-						var tV = b2Math.AddVV(poly.m_position, b2Math.b2MulMV(poly.m_R, poly.m_vertices[0]));
-						context.moveTo(tV.x, tV.y);
-						for (var i = 0; i < poly.m_vertexCount; i++) {
-							var v = b2Math.AddVV(poly.m_position, b2Math.b2MulMV(poly.m_R, poly.m_vertices[i]));
-							context.lineTo(v.x, v.y);
-						}
-						context.lineTo(tV.x, tV.y);
-					}
-					break;
-				}
-				context.fill();
-				context.stroke();
-			}
-
 			function createWorld() {
 				var worldAABB	= new b2AABB();
 				worldAABB.minVertex.Set(0, -1000);
@@ -132,31 +25,6 @@
 				world		= new b2World(worldAABB, gravity, doSleep);
 				return world;
 			}		
-
-			function createGround(world) {
-				return eb2.boxDef()
-						.size(800,30).restitution(0.2)
-					.toBodyDef()
-						.position(800, 470)
-					.toBody(world)
-			}
-			
-			/**
-			 * Test if this is working with easybox2d.js api
-			*/
-			var myCreatePoly = function(world, x, y, points, fixed) {
-				var polySd = new b2PolyDef();
-				if (!fixed) polySd.density = 1.0;
-				polySd.vertexCount = points.length;
-				for (var i = 0; i < points.length; i++) {
-					console.log("points", i, points[i])
-					polySd.vertices[i].Set(points[i][0], points[i][1]);
-				}
-				var polyBd = new b2BodyDef();
-				polyBd.AddShape(polySd);
-				polyBd.position.Set(x,y);
-				return world.CreateBody(polyBd)
-			};
 			
 			function createGround2(world){
 				var createOne	= function(x1, y1, x2, y2, h){				
@@ -174,9 +42,9 @@
 				var groundX	= 0;
 				var groundY	= 400;
 				var groundW	= 50;
-				var groundMaxDy	= 50;
+				var groundMaxDy	= 25;
+				var worldH	= 1000;
 				var worldW	= 2000;
-				console.dir(world)
 
 				for(; groundX < worldW; groundX += groundW){
 					var groundDy	= Math.floor(Math.random()*groundMaxDy) - groundMaxDy/2;
@@ -185,36 +53,6 @@
 					groundY		= newGroundY;
 				}
 				
-			}
-			
-			function step(cnt) {
-				var stepping	= false;
-				var timeStep	= 1.0/60;
-				var iteration	= 1;
-				
-				world.Step(timeStep, iteration);
-				ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-				drawWorld(world, ctx);
-				
-				setTimeout('step(' + (cnt || 0) + ')', 10);
-			}
-			
-			
-			function createObstacle(world, shapeW, shapeH, posX, posY, rotation){
-				return eb2.boxDef().attr({
-							density		: 0,
-							restitution	: 0,
-						 	friction	: 1.0,
-							localRotation	: rotation,
-						})
-						.size(shapeW, shapeH)
-					.toBodyDef()
-						.position(posX, posY)
-					.toBody(world)
-			}
-			
-			function createObstacles(world){
-				createObstacle(world, 80, 10, 500, 440, 0.9*Math.PI)
 			}
 			
 			function createPolyGround(world){
@@ -268,20 +106,37 @@
 							.motorSpeed(0* Math.PI).motorTorque(5000000.0)
 							.enableMotor(true)
 							.toJoint(world);
+//console.log("carBody", joint2)
+//for(var key in b2Joint.prototype){
+//	if( !key.match(/^Get/) && !key.match(/^Set/) )	continue;
+//	console.log(key);
+//}
+
+				var accelerate	= function(motorSpeed){
+					joint1.m_motorSpeed	= motorSpeed;
+					joint2.m_motorSpeed	= motorSpeed;
+
+					joint1.m_enableMotor	= motorSpeed ? true : false;
+					joint2.m_enableMotor	= motorSpeed ? true : false;
+				}
 
 				// TODO after a while the keyboard is disabled
 				// - not sure why... for sure it is a bug
 				// - compatibility issue jquery and prottype....
-				jQuery(document).bind('keydown', 'right',function (evt){					
-					joint1.m_enableMotor	= false;
-					joint2.m_enableMotor	= true;
-					joint2.m_motorSpeed	= 4.0 * Math.PI;
+				jQuery(document).bind('keydown', 'right',function (evt){
+					accelerate(4*Math.PI)
 					return false;
 				});
 				jQuery(document).bind('keyup', 'right',function (evt){
-					joint1.m_enableMotor	= false;
-					joint2.m_enableMotor	= true;
-					joint2.SetMotorSpeed(0 * Math.PI);				
+					accelerate(0)
+					return false;
+				});
+				jQuery(document).bind('keydown', 'left',function (evt){					
+					accelerate(-4*Math.PI)
+					return false;
+				});
+				jQuery(document).bind('keyup', 'left',function (evt){
+					accelerate(0)
 					return false;
 				});
 			}
@@ -332,7 +187,6 @@
 				});
 
 
-
 				var wheel2Body	= eb2.circleDef().density(1.0).radius(wheelRadius)
 							.restitution(0.3).friction(1.3)
 							.toBodyDef().position(410, 70)
@@ -345,24 +199,14 @@
 
 			// main entry point
 			Event.observe(window, 'load', function() {
-				ctx		= $('canvas').getContext('2d');
-				var canvasElm	= $('canvas');
-				canvasWidth	= parseInt(canvasElm.width);
-				canvasHeight	= parseInt(canvasElm.height);
-				canvasTop	= parseInt(canvasElm.style.top);
-				canvasLeft	= parseInt(canvasElm.style.left);
+				var world		= createWorld();		
 				
-				world		= createWorld();		
-				
-				//createGround(world);
-				//createObstacles(world);
 				createGround2(world);
-				//createPolyGround(world);
 				createCar(world);
 				//createCar2(world);
 				createDust(world)
 
-				step();
+				eb2.worldLoop(world, $('canvas').getContext('2d'))
 			});
 			</script>
 	</head>

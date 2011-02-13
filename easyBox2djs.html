@@ -288,6 +288,8 @@ code .this { color: #19469D; }</style>
 <pre><code><span class="variable">eb2</span>.<span class="variable">_createShapeDefClass</span>({
 	<span class="variable">_iClassName</span>	: &<span class="variable">quot</span>;<span class="variable">b2BoxDef</span>&<span class="variable">quot</span>;,
 	<span class="variable">size</span>		: <span class="keyword">function</span>(<span class="variable">w</span>, <span class="variable">h</span>){		<span class="comment">// FIXIT extends is a max radius, not a size</span>
+							<span class="comment">// so convert this function? or make an extends function ?</span>
+							<span class="comment">// size() is clearer, but extents() is the normal one</span>
 		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">w</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
 		<span class="variable">console</span>.<span class="variable">assert</span>(<span class="keyword">typeof</span> <span class="variable">h</span> !== &<span class="variable">quot</span>;<span class="variable">undefined</span>&<span class="variable">quot</span>;);
 		<span class="this">this</span>.<span class="variable">_iClass</span>.<span class="variable">extents</span>.<span class="class">Set</span>(<span class="variable">w</span>, <span class="variable">h</span>);
@@ -372,6 +374,149 @@ code .this { color: #19469D; }</style>
 		<span class="keyword">return</span> <span class="this">this</span>;
 	}
 })
+</code></pre>
+</td>
+</tr><tr class="filename"><td><h2 id="easyBox2d-drawworld.js"><a href="#">easyBox2d-drawworld</a></h2></td><td>easyBox2d-drawworld.js</td></tr><tr class="code">
+<td class="docs">
+<p>Draw the world</p>
+</td>
+<td class="code">
+<pre><code><span class="variable">eb2</span>.<span class="variable">drawWorld</span>	= <span class="keyword">function</span>(<span class="variable">world</span>, <span class="variable">context</span>) {
+	<span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">j</span> = <span class="variable">world</span>.<span class="variable">m_jointList</span>; <span class="variable">j</span>; <span class="variable">j</span> = <span class="variable">j</span>.<span class="variable">m_next</span>) {
+		<span class="variable">eb2</span>.<span class="variable">drawJoint</span>(<span class="variable">j</span>, <span class="variable">context</span>);
+	}
+	<span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">b</span> = <span class="variable">world</span>.<span class="variable">m_bodyList</span>; <span class="variable">b</span>; <span class="variable">b</span> = <span class="variable">b</span>.<span class="variable">m_next</span>) {
+		<span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">s</span> = <span class="variable">b</span>.<span class="class">GetShapeList</span>(); <span class="variable">s</span> != <span class="keyword">null</span>; <span class="variable">s</span> = <span class="variable">s</span>.<span class="class">GetNext</span>()) {
+			<span class="variable">eb2</span>.<span class="variable">drawShape</span>(<span class="variable">s</span>, <span class="variable">context</span>);
+		}
+	}		
+}</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Draw a joint</p>
+</td>
+<td class="code">
+<pre><code><span class="variable">eb2</span>.<span class="variable">drawJoint</span>	= <span class="keyword">function</span>(<span class="variable">joint</span>, <span class="variable">context</span>) {
+	<span class="keyword">var</span> <span class="variable">b1</span> = <span class="variable">joint</span>.<span class="variable">m_body1</span>;
+	<span class="keyword">var</span> <span class="variable">b2</span> = <span class="variable">joint</span>.<span class="variable">m_body2</span>;
+	<span class="keyword">var</span> <span class="variable">x1</span> = <span class="variable">b1</span>.<span class="variable">m_position</span>;
+	<span class="keyword">var</span> <span class="variable">x2</span> = <span class="variable">b2</span>.<span class="variable">m_position</span>;
+	<span class="keyword">var</span> <span class="variable">p1</span> = <span class="variable">joint</span>.<span class="class">GetAnchor1</span>();
+	<span class="keyword">var</span> <span class="variable">p2</span> = <span class="variable">joint</span>.<span class="class">GetAnchor2</span>();
+	<span class="variable">context</span>.<span class="variable">strokeStyle</span> = <span class="string">'#00eeee'</span>;
+	<span class="variable">context</span>.<span class="variable">beginPath</span>();
+	<span class="keyword">switch</span> (<span class="variable">joint</span>.<span class="variable">m_type</span>) {
+	<span class="keyword">case</span> <span class="variable">b2Joint</span>.<span class="variable">e_distanceJoint</span>:
+		<span class="variable">context</span>.<span class="variable">moveTo</span>(<span class="variable">p1</span>.<span class="variable">x</span>, <span class="variable">p1</span>.<span class="variable">y</span>);
+		<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">p2</span>.<span class="variable">x</span>, <span class="variable">p2</span>.<span class="variable">y</span>);
+		<span class="keyword">break</span>;
+
+	<span class="keyword">case</span> <span class="variable">b2Joint</span>.<span class="variable">e_pulleyJoint</span>:
+		<span class="comment">// TODO</span>
+		<span class="keyword">break</span>;
+
+	<span class="keyword">default</span>:
+		<span class="keyword">if</span> (<span class="variable">b1</span> == <span class="variable">world</span>.<span class="variable">m_groundBody</span>) {
+			<span class="variable">context</span>.<span class="variable">moveTo</span>(<span class="variable">p1</span>.<span class="variable">x</span>, <span class="variable">p1</span>.<span class="variable">y</span>);
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">x2</span>.<span class="variable">x</span>, <span class="variable">x2</span>.<span class="variable">y</span>);
+		}
+		<span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">b2</span> == <span class="variable">world</span>.<span class="variable">m_groundBody</span>) {
+			<span class="variable">context</span>.<span class="variable">moveTo</span>(<span class="variable">p1</span>.<span class="variable">x</span>, <span class="variable">p1</span>.<span class="variable">y</span>);
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">x1</span>.<span class="variable">x</span>, <span class="variable">x1</span>.<span class="variable">y</span>);
+		}
+		<span class="keyword">else</span> {
+			<span class="variable">context</span>.<span class="variable">moveTo</span>(<span class="variable">x1</span>.<span class="variable">x</span>, <span class="variable">x1</span>.<span class="variable">y</span>);
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">p1</span>.<span class="variable">x</span>, <span class="variable">p1</span>.<span class="variable">y</span>);
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">x2</span>.<span class="variable">x</span>, <span class="variable">x2</span>.<span class="variable">y</span>);
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">p2</span>.<span class="variable">x</span>, <span class="variable">p2</span>.<span class="variable">y</span>);
+		}
+		<span class="keyword">break</span>;
+	}
+	<span class="variable">context</span>.<span class="variable">stroke</span>();
+}</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Draw a shape</p>
+</td>
+<td class="code">
+<pre><code><span class="variable">eb2</span>.<span class="variable">drawShape</span>	= <span class="keyword">function</span>(<span class="variable">shape</span>, <span class="variable">context</span>) {
+	<span class="variable">context</span>.<span class="variable">strokeStyle</span> = <span class="string">'#ffffff'</span>;
+	<span class="keyword">if</span> (<span class="variable">shape</span>.<span class="variable">density</span> == <span class="number float">1.0</span>) {
+		<span class="variable">context</span>.<span class="variable">fillStyle</span> = &<span class="variable">quot</span>;<span class="variable">red</span>&<span class="variable">quot</span>;;
+	} <span class="keyword">else</span> {
+		<span class="variable">context</span>.<span class="variable">fillStyle</span> = &<span class="variable">quot</span>;<span class="variable">black</span>&<span class="variable">quot</span>;;
+	}
+	<span class="variable">context</span>.<span class="variable">beginPath</span>();
+	<span class="keyword">switch</span> (<span class="variable">shape</span>.<span class="variable">m_type</span>) {
+	<span class="keyword">case</span> <span class="variable">b2Shape</span>.<span class="variable">e_circleShape</span>:
+		{
+			<span class="keyword">var</span> <span class="variable">circle</span> = <span class="variable">shape</span>;
+			<span class="keyword">var</span> <span class="variable">pos</span> = <span class="variable">circle</span>.<span class="variable">m_position</span>;
+			<span class="keyword">var</span> <span class="variable">r</span> = <span class="variable">circle</span>.<span class="variable">m_radius</span>;
+			<span class="keyword">var</span> <span class="variable">segments</span> = <span class="number float">16.0</span>;
+			<span class="keyword">var</span> <span class="variable">theta</span> = <span class="number float">0.0</span>;
+			<span class="keyword">var</span> <span class="variable">dtheta</span> = <span class="number float">2.0</span> * <span class="class">Math</span>.<span class="class">PI</span> / <span class="variable">segments</span>;
+			
+			<span class="comment">// draw circle</span>
+			<span class="variable">context</span>.<span class="variable">moveTo</span>(<span class="variable">pos</span>.<span class="variable">x</span> + <span class="variable">r</span>, <span class="variable">pos</span>.<span class="variable">y</span>);
+			<span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">segments</span>; <span class="variable">i</span>++) {
+				<span class="keyword">var</span> <span class="variable">d</span> = <span class="keyword">new</span> <span class="variable">b2Vec2</span>(<span class="variable">r</span> * <span class="class">Math</span>.<span class="variable">cos</span>(<span class="variable">theta</span>), <span class="variable">r</span> * <span class="class">Math</span>.<span class="variable">sin</span>(<span class="variable">theta</span>));
+				<span class="keyword">var</span> <span class="variable">v</span> = <span class="variable">b2Math</span>.<span class="class">AddVV</span>(<span class="variable">pos</span>, <span class="variable">d</span>);
+				<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">v</span>.<span class="variable">x</span>, <span class="variable">v</span>.<span class="variable">y</span>);
+				<span class="variable">theta</span> += <span class="variable">dtheta</span>;
+			}
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">pos</span>.<span class="variable">x</span> + <span class="variable">r</span>, <span class="variable">pos</span>.<span class="variable">y</span>);
+	
+			<span class="comment">// draw radius</span>
+			<span class="variable">context</span>.<span class="variable">moveTo</span>(<span class="variable">pos</span>.<span class="variable">x</span>, <span class="variable">pos</span>.<span class="variable">y</span>);
+			<span class="keyword">var</span> <span class="variable">ax</span> = <span class="variable">circle</span>.<span class="variable">m_R</span>.<span class="variable">col1</span>;
+			<span class="keyword">var</span> <span class="variable">pos2</span> = <span class="keyword">new</span> <span class="variable">b2Vec2</span>(<span class="variable">pos</span>.<span class="variable">x</span> + <span class="variable">r</span> * <span class="variable">ax</span>.<span class="variable">x</span>, <span class="variable">pos</span>.<span class="variable">y</span> + <span class="variable">r</span> * <span class="variable">ax</span>.<span class="variable">y</span>);
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">pos2</span>.<span class="variable">x</span>, <span class="variable">pos2</span>.<span class="variable">y</span>);
+		}
+		<span class="keyword">break</span>;
+	<span class="keyword">case</span> <span class="variable">b2Shape</span>.<span class="variable">e_polyShape</span>:
+		{
+			<span class="keyword">var</span> <span class="variable">poly</span> = <span class="variable">shape</span>;
+			<span class="keyword">var</span> <span class="variable">tV</span> = <span class="variable">b2Math</span>.<span class="class">AddVV</span>(<span class="variable">poly</span>.<span class="variable">m_position</span>, <span class="variable">b2Math</span>.<span class="variable">b2MulMV</span>(<span class="variable">poly</span>.<span class="variable">m_R</span>, <span class="variable">poly</span>.<span class="variable">m_vertices</span>[<span class="number integer">0</span>]));
+			<span class="variable">context</span>.<span class="variable">moveTo</span>(<span class="variable">tV</span>.<span class="variable">x</span>, <span class="variable">tV</span>.<span class="variable">y</span>);
+			<span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">poly</span>.<span class="variable">m_vertexCount</span>; <span class="variable">i</span>++) {
+				<span class="keyword">var</span> <span class="variable">v</span> = <span class="variable">b2Math</span>.<span class="class">AddVV</span>(<span class="variable">poly</span>.<span class="variable">m_position</span>, <span class="variable">b2Math</span>.<span class="variable">b2MulMV</span>(<span class="variable">poly</span>.<span class="variable">m_R</span>, <span class="variable">poly</span>.<span class="variable">m_vertices</span>[<span class="variable">i</span>]));
+				<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">v</span>.<span class="variable">x</span>, <span class="variable">v</span>.<span class="variable">y</span>);
+			}
+			<span class="variable">context</span>.<span class="variable">lineTo</span>(<span class="variable">tV</span>.<span class="variable">x</span>, <span class="variable">tV</span>.<span class="variable">y</span>);
+		}
+		<span class="keyword">break</span>;
+	}
+	<span class="variable">context</span>.<span class="variable">fill</span>();
+	<span class="variable">context</span>.<span class="variable">stroke</span>();
+}</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>loop over the world </p>
+
+<ul><li>TODO make it cleaner</li><li>TODO make this function a lot more parametrable</li><li>TODO clean this function for slow computer aka what happen is rendering is too slow<ul><li>howto http://gafferongames.com/game-physics/fix-your-timestep/ </li></ul></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">eb2</span>.<span class="variable">worldLoop</span>	= <span class="keyword">function</span>(<span class="variable">world</span>, <span class="variable">ctx</span>) {
+	<span class="keyword">var</span> <span class="variable">stepping</span>	= <span class="variable">false</span>;
+	<span class="keyword">var</span> <span class="variable">timeStep</span>	= <span class="number float">1.0</span>/<span class="number integer">60</span>;
+	<span class="keyword">var</span> <span class="variable">iteration</span>	= <span class="number integer">4</span>;
+	
+	<span class="variable">world</span>.<span class="class">Step</span>(<span class="variable">timeStep</span>, <span class="variable">iteration</span>);
+
+	<span class="variable">ctx</span>.<span class="variable">clearRect</span>(<span class="number integer">0</span>, <span class="number integer">0</span>, <span class="variable">ctx</span>.<span class="variable">canvas</span>.<span class="variable">width</span>, <span class="variable">ctx</span>.<span class="variable">canvas</span>.<span class="variable">height</span>);
+	<span class="variable">eb2</span>.<span class="variable">drawWorld</span>(<span class="variable">world</span>, <span class="variable">ctx</span>);
+	
+	<span class="variable">setTimeout</span>(<span class="keyword">function</span>(){
+		<span class="variable">eb2</span>.<span class="variable">worldLoop</span>(<span class="variable">world</span>, <span class="variable">ctx</span>)
+	}, <span class="variable">timeStep</span>*<span class="number integer">1000</span>);
+}
 </code></pre>
 </td>
 </tr>	</body>

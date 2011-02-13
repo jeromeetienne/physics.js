@@ -17,7 +17,7 @@ deployGhPage:
 	#rm -rf /tmp/html5-buggyGhPages
 
 docs:
-	dox --ribbon "http://github.com/jeromeetienne/EasyBox2djs"	\
-		--title "Easy Box2djs"					\
+	dox --ribbon "http://github.com/jeromeetienne/EasyBox2d.js"	\
+		--title "EasyBox2d.js"					\
 		--desc "Easy API on top of Box2djs"			\
-		easyBox2djs.js > easyBox2djs.html
+		easyBox2d.js easyBox2d-drawworld.js > easyBox2djs.html
