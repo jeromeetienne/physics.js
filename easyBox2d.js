@@ -6,6 +6,12 @@
  *
  *
  * TODO
+ * * support plugin ?
+ *   * to have world drawer
+ *   * game loop
+ *   * or basic object builder
+ *   * look at how jquery does it
+ *   * seems something good to have
  * * a class for actual Body and Shape and world
  *   * try to keep the same class builder as _createDefClass
  * * each class got
