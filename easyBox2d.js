@@ -13,7 +13,7 @@
  *   * look at how jquery does it
  *   * seems something good to have
  * * a class for actual Body and Shape and world
- *   * try to keep the same class builder as _createDefClass
+ *   * try to keep the same class builder as _createBaseDefClass
  * * each class got
  *   * bunch of attributes (key, val) for iClass[key]	= val;
  *   * attr({key: val})
@@ -52,39 +52,15 @@ eb2._global	= typeof window !== "undefined" ? window :
 			typeof global !== "undefined" ? global :
 			console.assert(false);
 
-eb2._defDefaultAttrInfos	= function(iClassName){
-	var iClass	= new eb2._global[iClassName]()
-	var attrInfos	= {};
-	for(var key in iClass){
-		var type	= typeof iClass[key];
-		if( type === "function" )	continue;
-		attrInfos[key]	= "rw";
-	}
-	return attrInfos;
-}
 
-eb2._defDefaultAttrOneFct	= function(key, val){
-	// check that this key exist
-	console.assert(typeof this._attrInfos[key] !== "undefined")
-	// get the attrInfo
-	var attrInfo	= this._attrInfos[key];
-	// handle the getter case
-	if(typeof val === 'undefined'){
-		// check that permissions is ok
-		console.assert(attrInfo.indexOf("r") != -1);
-		// return the value
-		return this._iClass[key];
-	}
-	// handle the setter case
-	// check that permissions is ok
-	console.assert(attrInfo.indexOf("w") != -1);
-	this._iClass[key]	= val;
-	// return the object itself
-	return this;
-};
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//										//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Create a class for Definitions
+ * Create a base class
 */
 eb2._createBaseClass	= function(opts){
 	// TODO to write
@@ -140,10 +116,122 @@ eb2._createBaseClass	= function(opts){
 	eb2[className].prototype.init.prototype = eb2[className].fn = eb2[className].prototype;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//										//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+eb2._objDefaultAttrInfos	= function(iClassName){
+	var iClass	= eb2._global[iClassName].prototype;
+	var attrInfos	= {};
+	for(var key in iClass){
+		if( typeof iClass[key] !== "function" )	continue;
+		if( !key.match(/^Get/) && !key.match(/^Set/) )	continue;
+		var attrName	= key.substr(3,1).toLowerCase() + key.substring(4)
+		var access	= key.substr(0,3);
+		//console.log("key", attrName, access)
+		if( typeof attrInfos[attrName] === "undefined" ){
+			attrInfos[attrName]	= "";
+		}
+		if( access === "Get" ){
+			attrInfos[attrName]	+= "r";
+		}else if( access === "Set" ){
+			attrInfos[attrName]	+= "w";
+		}else	console.assert(false);
+	}
+	return attrInfos;
+}
+
+
+eb2._objDefaultAttrOneFct	= function(key, val){
+	// check that this key exist
+	console.assert(typeof this._attrInfos[key] !== "undefined")
+	// get the attrInfo
+	var attrInfo	= this._attrInfos[key];
+	// handle the getter case
+	if(typeof val === 'undefined'){
+		// check that permissions is ok
+		console.assert(attrInfo.indexOf("r") != -1);
+		// return the value using the Get* function
+		return this._iClass["Get"+key]();
+	}
+	// handle the setter case
+	// check that permissions is ok
+	console.assert(attrInfo.indexOf("w") != -1);
+	// set the value using the Set* function
+	this._iClass["Set"+key](val);
+	// return the object itself
+	return this;
+};
+
 /**
  * Create a class for Definitions
 */
-eb2._createDefClass	= function(opts){
+eb2._createObjClass	= function(opts){
+	var iClassName	= opts._iClassName;
+	opts._attrInfos	= opts._attrInfos	|| eb2._objDefaultAttrInfos(iClassName);
+	opts._attrOneFct= opts._attrOneFct	|| eb2._objDefaultAttrOneFct;
+	return eb2._createBaseClass(opts)
+}
+
+eb2._createObjClass({
+	_iClassName	: "b2Body",
+	init		: function(iClass){
+		this._iClass	= iClass;
+		return this;
+	}
+})
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//										//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+eb2._defDefaultAttrInfos	= function(iClassName){
+	var iClass	= new eb2._global[iClassName]()
+	var attrInfos	= {};
+	for(var key in iClass){
+		var type	= typeof iClass[key];
+		if( type === "function" )	continue;
+		attrInfos[key]	= "rw";
+	}
+	return attrInfos;
+}
+
+eb2._defDefaultAttrOneFct	= function(key, val){
+	// check that this key exist
+	console.assert(typeof this._attrInfos[key] !== "undefined")
+	// get the attrInfo
+	var attrInfo	= this._attrInfos[key];
+	// handle the getter case
+	if(typeof val === 'undefined'){
+		// check that permissions is ok
+		console.assert(attrInfo.indexOf("r") != -1);
+		// return the value
+		return this._iClass[key];
+	}
+	// handle the setter case
+	// check that permissions is ok
+	console.assert(attrInfo.indexOf("w") != -1);
+	this._iClass[key]	= val;
+	// return the object itself
+	return this;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//										//
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Create a class for Definitions
+*/
+eb2._createBaseDefClass	= function(opts){
 	var iClassName	= opts._iClassName;
 	opts._attrInfos	= opts._attrInfos	|| eb2._defDefaultAttrInfos(iClassName);
 	opts._attrOneFct= opts._attrOneFct	|| eb2._defDefaultAttrOneFct;
@@ -154,7 +242,7 @@ eb2._createDefClass	= function(opts){
  * Create a ShapeDef Class
  *
  * - create the class itself, dont instanciate with the object of this class
- * - derived from eb2._createDefClass
+ * - derived from eb2._createBaseDefClass
 */
 eb2._createShapeDefClass	= function(opts){
 	var iClassName	= opts._iClassName;
@@ -168,14 +256,14 @@ eb2._createShapeDefClass	= function(opts){
 		if( attrs )	bodyDef.attr(attrs);
 		return bodyDef;
 	};
-	return eb2._createDefClass(opts)
+	return eb2._createBaseDefClass(opts)
 }
 
 /**
  * Create a JointDef Class
  *
  * - create the class itself, dont instanciate with the object of this class
- * - derived from eb2._createDefClass
+ * - derived from eb2._createBaseDefClass
 */
 eb2._createJointDefClass	= function(opts){
 	var iClassName	= opts._iClassName;
@@ -187,7 +275,7 @@ eb2._createJointDefClass	= function(opts){
 	opts.toJoint	= function(world){
 		return world.CreateJoint(this._iClass);
 	}
-	return eb2._createDefClass(opts)
+	return eb2._createBaseDefClass(opts)
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -199,9 +287,9 @@ eb2._createJointDefClass	= function(opts){
 /**
  * create the bodyDef class
 */
-eb2._createDefClass({
+eb2._createBaseDefClass({
 	_iClassName	: "b2BodyDef",
-	init		: function(shapeDef){	// overwrite normal .init()
+	init		: function(shapeDef){
 		this._iClass	= new b2BodyDef();
 		this._iClass.AddShape(shapeDef);
 		return this;
