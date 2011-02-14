@@ -1,5 +1,6 @@
 * should i rename this project physics.js ?
   * seems cooler than easybox2d
+  * rapid poll says physics.js is cooler
 * make little examples
   * copy the one in the original site
   * would serve of tests as well
