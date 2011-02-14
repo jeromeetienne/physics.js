@@ -116,16 +116,21 @@
 //	if( !key.match(/^Get/) && !key.match(/^Set/) )	continue;
 //	console.log(key);
 //}
-console.log("eb2.body");
+console.log("eb2.body", joint1);
 console.log(joint2 instanceof b2RevoluteJoint)
 console.dir(eb2.revoluteJoint.prototype);
 
 				var accelerate	= function(motorSpeed){
-					joint1.m_motorSpeed	= motorSpeed;
-					joint2.m_motorSpeed	= motorSpeed;
-
-					joint1.m_enableMotor	= motorSpeed ? true : false;
-					joint2.m_enableMotor	= motorSpeed ? true : false;
+					if( false ){
+						joint1.m_motorSpeed	= motorSpeed;
+						joint2.m_motorSpeed	= motorSpeed;
+	
+						joint1.m_enableMotor	= motorSpeed ? true : false;
+						joint2.m_enableMotor	= motorSpeed ? true : false;						
+					}else{
+						joint1.motorSpeed(motorSpeed).motorTorque(motorSpeed ? 5000000.0 : 0)
+						joint2.motorSpeed(motorSpeed).motorTorque(motorSpeed ? 5000000.0 : 0)
+					}
 				}
 
 				// TODO after a while the keyboard is disabled

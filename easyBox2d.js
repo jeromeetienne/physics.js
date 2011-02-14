@@ -53,6 +53,15 @@ eb2._global	= typeof window !== "undefined" ? window :
 			console.assert(false);
 
 
+eb2._jointIClassNames	= [
+	"b2DistanceJoint",
+	"b2GearJoint",
+	"b2MouseJoint",
+	"b2PrismaticJoint",
+	"b2PulleyJoint",
+	"b2RevoluteJoint"
+];
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //										//
@@ -146,6 +155,7 @@ eb2._objDefaultAttrInfos	= function(iClassName){
 
 
 eb2._objDefaultAttrOneFct	= function(key, val){
+	var keyCapitalized	= key.substring(0,1).toUpperCase() + key.substring(1);
 	// check that this key exist
 	console.assert(typeof this._attrInfos[key] !== "undefined")
 	// get the attrInfo
@@ -155,13 +165,13 @@ eb2._objDefaultAttrOneFct	= function(key, val){
 		// check that permissions is ok
 		console.assert(attrInfo.indexOf("r") != -1);
 		// return the value using the Get* function
-		return this._iClass["Get"+key]();
+		return this._iClass["Get"+keyCapitalized]();
 	}
 	// handle the setter case
 	// check that permissions is ok
 	console.assert(attrInfo.indexOf("w") != -1);
 	// set the value using the Set* function
-	this._iClass["Set"+key](val);
+	this._iClass["Set"+keyCapitalized](val);
 	// return the object itself
 	return this;
 };
@@ -179,10 +189,10 @@ eb2._createObjClass	= function(opts){
 	}
 	return eb2._createBaseClass(opts)
 }
-//
-//eb2._createObjClass({
-//	_iClassName	: "b2Body"
-//})
+
+eb2._createObjClass({
+	_iClassName	: "b2Body"
+})
 
 /**
  * the wrapper on top of body+all joint are here
@@ -196,9 +206,37 @@ eb2._createObjClass	= function(opts){
  *     * in jointDef.body(body1, body2) handle box2d body and eb2 body
 */
 
-eb2._createObjClass({
-	_iClassName	: "b2RevoluteJoint"
+/**
+ * Create a class for Definitions
+*/
+eb2._createJointObjClass	= function(opts){
+	var iClassName	= opts._iClassName;
+	opts.init	= opts.init		|| function(iClass){
+		console.log("init iClassName", iClassName)
+		console.assert(iClass instanceof eb2._global[iClassName])
+		this._iClass	= iClass;
+		return this;
+	}
+	return eb2._createObjClass(opts)
+}
+
+eb2._jointIClassNames.forEach(function(iClassName){
+	eb2._createJointObjClass({
+		_iClassName	: iClassName
+	})	
 })
+
+eb2._createJointObj	= function(iClass){
+	console.log("iClass", iClass)
+	for(var i = 0; eb2._jointIClassNames.length;i++){
+		var iClassName	= eb2._jointIClassNames[i];
+		if( iClass instanceof eb2._global[iClassName] ){
+			return eb2.revoluteJoint(iClass);
+		}
+	}
+	console.assert(false);
+	return undefined;
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +327,8 @@ eb2._createJointDefClass	= function(opts){
 		return this;		
 	};
 	opts.toJoint	= function(world){
-		return world.CreateJoint(this._iClass);
+		var joint	= world.CreateJoint(this._iClass);
+		return eb2._createJointObj(joint)
 	}
 	return eb2._createBaseDefClass(opts)
 }
@@ -351,6 +390,7 @@ eb2._createShapeDefClass({
 //		Create Joint Definition Classes					//
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
+
 
 eb2._createJointDefClass({
 	_iClassName	: "b2DistanceJointDef"
