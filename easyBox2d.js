@@ -173,15 +173,31 @@ eb2._createObjClass	= function(opts){
 	var iClassName	= opts._iClassName;
 	opts._attrInfos	= opts._attrInfos	|| eb2._objDefaultAttrInfos(iClassName);
 	opts._attrOneFct= opts._attrOneFct	|| eb2._objDefaultAttrOneFct;
-	return eb2._createBaseClass(opts)
-}
-
-eb2._createObjClass({
-	_iClassName	: "b2Body",
-	init		: function(iClass){
+	opts.init	= opts.init		|| function(iClass){
 		this._iClass	= iClass;
 		return this;
 	}
+	return eb2._createBaseClass(opts)
+}
+//
+//eb2._createObjClass({
+//	_iClassName	: "b2Body"
+//})
+
+/**
+ * the wrapper on top of body+all joint are here
+ * * TODO define all type of joint
+ * * define a function which create a eb2 joint class based box2djs class
+ *   * do a instanceof and new
+ * * using this function in toJoint()
+ * * test this in index.html with the engine
+ *   * first only the Joint
+ *   * then the body
+ *     * in jointDef.body(body1, body2) handle box2d body and eb2 body
+*/
+
+eb2._createObjClass({
+	_iClassName	: "b2RevoluteJoint"
 })
 
 //////////////////////////////////////////////////////////////////////////////////
