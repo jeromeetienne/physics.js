@@ -5,3 +5,4 @@
   * would serve of tests as well
 * write an homepage ?
   * just a github ?
+* possible to make it run in node.js too ?
