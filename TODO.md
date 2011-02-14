@@ -6,3 +6,5 @@
 * write an homepage ?
   * just a github ?
 * possible to make it run in node.js too ?
+  * dunno... not really a use case to use box2d on node tho
+  * in browser this is a lot about game

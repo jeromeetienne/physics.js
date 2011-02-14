@@ -1,23 +1,21 @@
 /**
- * first easybox2d
- *
- * - first plugins
- * - split it in 2
- *   - world2canvas
- *   - gameloop
+ * easybox2d plugin to display a world in canvas
+ * 
 */
 
+console.assert(eb2.world2canvas === "undefined");
+eb2.world2canvas	= {};
 
 /**
  * Draw the world
 */
-eb2.drawWorld	= function(world, context) {
+eb2.world2canvas.drawWorld	= function(world, context) {
 	for (var j = world.m_jointList; j; j = j.m_next) {
-		eb2.drawJoint(j, context);
+		eb2.world2canvas.drawJoint(j, context);
 	}
 	for (var b = world.m_bodyList; b; b = b.m_next) {
 		for (var s = b.GetShapeList(); s != null; s = s.GetNext()) {
-			eb2.drawShape(s, context);
+			eb2.world2canvas.drawShape(s, context);
 		}
 	}		
 }
@@ -25,7 +23,7 @@ eb2.drawWorld	= function(world, context) {
 /**
  * Draw a joint
 */
-eb2.drawJoint	= function(joint, context) {
+eb2.world2canvas.drawJoint	= function(joint, context) {
 	var b1 = joint.m_body1;
 	var b2 = joint.m_body2;
 	var x1 = b1.m_position;
@@ -67,7 +65,7 @@ eb2.drawJoint	= function(joint, context) {
 /**
  * Draw a shape
 */
-eb2.drawShape	= function(shape, context) {
+eb2.world2canvas.drawShape	= function(shape, context) {
 	context.strokeStyle = '#ffffff';
 	if (shape.density == 1.0) {
 		context.fillStyle = "red";
@@ -119,25 +117,3 @@ eb2.drawShape	= function(shape, context) {
 	context.stroke();
 }
 
-/**
- * loop over the world 
- *
- * - TODO make it cleaner
- * - TODO make this function a lot more parametrable
- * - TODO clean this function for slow computer aka what happen is rendering is too slow
- *   - howto http://gafferongames.com/game-physics/fix-your-timestep/ 
-*/
-eb2.worldLoop	= function(world, ctx) {
-	var stepping	= false;
-	var timeStep	= 1.0/60;
-	var iteration	= 4;
-	
-	world.Step(timeStep, iteration);
-
-	ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-	eb2.drawWorld(world, ctx);
-	
-	setTimeout(function(){
-		eb2.worldLoop(world, ctx)
-	}, timeStep*1000);
-}
