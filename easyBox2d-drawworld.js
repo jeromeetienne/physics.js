@@ -1,4 +1,14 @@
 /**
+ * first easybox2d
+ *
+ * - first plugins
+ * - split it in 2
+ *   - world2canvas
+ *   - gameloop
+*/
+
+
+/**
  * Draw the world
 */
 eb2.drawWorld	= function(world, context) {

@@ -1,11 +1,15 @@
 /*!
  * Chainable API on top of box2djs
  * - built using turing.js chain tutorial http://dailyjs.com/2010/08/26/framework-part-27/
+ * - only a wrapper on top. the whole physic is the same
+ * - TODO add a plugin system
+ * 
  * initial stuff
  * var slota	= eb2BoxDef().density(0.5).restitution(0).friction(1.0).size(50, 10).toBody().position(800, 30).toWorld(world)
  *
  *
  * TODO
+ * * TODO clean up with this file
  * * support plugin ?
  *   * to have world drawer
  *   * game loop
@@ -37,6 +41,18 @@
  *   * do a createShapeDefClass
  *   * do a createJointDefClass
  *   * remove the .init from createBaseDefClass
+*/
+
+/**
+ * the wrapper on top of body+all joint are here
+ * * TODO define all type of joint
+ * * define a function which create a eb2 joint class based box2djs class
+ *   * do a instanceof and new
+ * * using this function in toJoint()
+ * * test this in index.html with the engine
+ *   * first only the Joint
+ *   * then the body
+ *     * in jointDef.body(body1, body2) handle box2d body and eb2 body
 */
 
 
@@ -195,18 +211,6 @@ eb2._createObjClass({
 })
 
 /**
- * the wrapper on top of body+all joint are here
- * * TODO define all type of joint
- * * define a function which create a eb2 joint class based box2djs class
- *   * do a instanceof and new
- * * using this function in toJoint()
- * * test this in index.html with the engine
- *   * first only the Joint
- *   * then the body
- *     * in jointDef.body(body1, body2) handle box2d body and eb2 body
-*/
-
-/**
  * Create a class for Definitions
 */
 eb2._createJointObjClass	= function(opts){
@@ -349,7 +353,9 @@ eb2._createBaseDefClass({
 		this._iClass.AddShape(shapeDef);
 		return this;
 	},
-	toBody		: function(world){	return world.CreateBody(this._iClass);	},
+	toBody		: function(world){
+		return eb2.body( world.CreateBody(this._iClass) );
+	},
 	position	: function(x, y){
 		this._iClass.position.Set(x, y);
 		return this;
@@ -428,6 +434,8 @@ eb2._createJointDefClass({
 	body		: function(body1, body2){
 		console.assert(typeof body1 !== "undefined");
 		console.assert(typeof body2 !== "undefined");
+		if( body1 instanceof eb2.body )	body1	= body1.get();
+		if( body2 instanceof eb2.body )	body2	= body2.get();
 		this._iClass.body1	= body1;
 		this._iClass.body2	= body2;
 		return this;
@@ -449,6 +457,8 @@ eb2._createJointDefClass({
 	body		: function(body1, body2){
 		console.assert(typeof body1 !== "undefined");
 		console.assert(typeof body2 !== "undefined");
+		if( body1 instanceof eb2.body )	body1	= body1.get();
+		if( body2 instanceof eb2.body )	body2	= body2.get();
 		this._iClass.body1	= body1;
 		this._iClass.body2	= body2;
 		return this;
