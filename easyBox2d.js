@@ -90,8 +90,8 @@ eb2._createBaseClass	= function(opts){
 	// TODO to write
 	var iClassName	= opts._iClassName;
 	var className	= opts._className	|| (opts._iClassName.substr(2,1).toLowerCase() + opts._iClassName.substr(3));
-	var attrInfos	= opts._attrInfos	|| eb2._defDefaultAttrInfos(iClassName);
-	var attrOneFct	= opts._attrOneFct	|| eb2._defDefaultAttrOneFct;
+	var attrInfos	= opts._attrInfos	|| console.assert(false);
+	var attrOneFct	= opts._attrOneFct	|| console.assert(false);
 
 	// ctor
 	// TODO what is the purpose of this .fn ?
@@ -145,8 +145,8 @@ eb2._createBaseClass	= function(opts){
 */
 eb2._createDefClass	= function(opts){
 	var iClassName	= opts._iClassName;
-	opts.attrInfos	= opts._attrInfos	|| eb2._guessDefAttrInfos(iClassName);
-	opts.attrOneFct	= opts._attrOneFct	|| eb2._defDefaultAttrOneFct;
+	opts._attrInfos	= opts._attrInfos	|| eb2._defDefaultAttrInfos(iClassName);
+	opts._attrOneFct= opts._attrOneFct	|| eb2._defDefaultAttrOneFct;
 	return eb2._createBaseClass(opts)
 }
 

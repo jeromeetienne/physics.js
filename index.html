@@ -106,11 +106,11 @@
 							.motorSpeed(0* Math.PI).motorTorque(5000000.0)
 							.enableMotor(true)
 							.toJoint(world);
-//console.log("carBody", joint2)
-//for(var key in b2Joint.prototype){
-//	if( !key.match(/^Get/) && !key.match(/^Set/) )	continue;
-//	console.log(key);
-//}
+console.log("carBody", joint2)
+for(var key in b2Joint.prototype){
+	if( !key.match(/^Get/) && !key.match(/^Set/) )	continue;
+	console.log(key);
+}
 
 				var accelerate	= function(motorSpeed){
 					joint1.m_motorSpeed	= motorSpeed;
