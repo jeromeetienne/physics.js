@@ -1,11 +1,11 @@
 /*!
- * Chainable API on top of box2djs
- * - built using turing.js chain tutorial http://dailyjs.com/2010/08/26/framework-part-27/
- * - only a wrapper on top. the whole physic is the same
- * - TODO add a plugin system
+ * Physics.js is a javascript physics engine
  * 
- * initial stuff
- * var slota	= pjsBoxDef().density(0.5).restitution(0).friction(1.0).size(50, 10).toBody().position(800, 30).toWorld(world)
+ * - It acts as a wrapper on top of box2d. the whole physic is the same
+ * - it contains a plugin system
+ * 
+ * - built using turing.js chain tutorial http://dailyjs.com/2010/08/26/framework-part-27/
+ * 
  *
  *
  * TODO

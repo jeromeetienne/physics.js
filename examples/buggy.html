@@ -5,7 +5,7 @@
 		<title>Html5 buggy with physics.js</title>
 		<!--[if IE]><script type="text/javascript" src="../vendor/box2d/lib/excanvas.js"></script><![endif]-->
 		<script src="../vendor/box2d/lib/prototype-1.6.0.2.js"></script>
-		<script src="../box2djs.js"></script>
+		<script src="../vendor/box2djs.js"></script>
 		<script src="../physics.js"></script>
 		<script src="../plugins/physics.world2canvas.js"></script>
 		<script src="../plugins/physics.worldloop.js"></script>
@@ -24,6 +24,7 @@
 				var gravity	= new b2Vec2(0, 400);
 				var doSleep	= true;
 				world		= new b2World(worldAABB, gravity, doSleep);
+				console.log("world", world)
 				return world;
 			}		
 			
@@ -88,50 +89,27 @@
 				var wheelRadius	= 20;
 				
 				// create one wheel
-				var wheel1Body	= pjs.circleDef().density(1.0).radius(wheelRadius)
-							.restitution(0.3).friction(1.3)
+				var wheel1Body	= pjs.circleDef().density(0.2).radius(wheelRadius)
+							.restitution(1).friction(1.3)
 							.toBodyDef().position(50, 60)
 							.toBody(world)
-				var wheel2Body	= pjs.circleDef().density(1.0).radius(wheelRadius)
-							.restitution(0.3).friction(1.3)
+				var wheel2Body	= pjs.circleDef().density(0.2).radius(wheelRadius)
+							.restitution(1).friction(1.3)
 							.toBodyDef().position(110, 60)
 							.toBody(world)
-				var carBody	= pjs.boxDef().density(0.5).restitution(0).friction(1.0).size(50, 10)
+				var carBody	= pjs.boxDef().density(0.2).restitution(0).friction(1.0).size(50, 10)
 							.toBodyDef().position(80, 30)
 							.toBody(world)
 				var joint1	= pjs.revoluteJointDef().anchor(50,60).body(carBody, wheel1Body)
-							.motorSpeed(0* Math.PI).motorTorque(5000000.0)
 							.enableMotor(true)
-							.toJoint(world);
+				 			.toJoint(world);
 				var joint2	= pjs.revoluteJointDef().anchor(110,60).body(carBody, wheel2Body)
-							.motorSpeed(0* Math.PI).motorTorque(5000000.0)
 							.enableMotor(true)
 							.toJoint(world);
-//console.log("carBody", joint2)
-//for(var key in b2Body.prototype){
-//	if( !key.match(/^Get/) && !key.match(/^Set/) )	continue;
-//	console.log(key);
-//}
-//console.log("carBody%%%%")
-//for(var key in b2RevoluteJoint.prototype){
-//	if( !key.match(/^Get/) && !key.match(/^Set/) )	continue;
-//	console.log(key);
-//}
-console.log("pjs.body", joint1.get);
-console.log(joint2 instanceof b2RevoluteJoint)
-console.dir(pjs.revoluteJoint.prototype);
 
 				var accelerate	= function(motorSpeed){
-					if( false ){
-						joint1.m_motorSpeed	= motorSpeed;
-						joint2.m_motorSpeed	= motorSpeed;
-	
-						joint1.m_enableMotor	= motorSpeed ? true : false;
-						joint2.m_enableMotor	= motorSpeed ? true : false;						
-					}else{
-						joint1.motorSpeed(motorSpeed).motorTorque(motorSpeed ? 5000000.0 : 0)
-						joint2.motorSpeed(motorSpeed).motorTorque(motorSpeed ? 5000000.0 : 0)
-					}
+					joint1.motorSpeed(motorSpeed).motorTorque(motorSpeed ? 50000000.0 : 0)
+					joint2.motorSpeed(motorSpeed).motorTorque(motorSpeed ? 50000000.0 : 0)
 				}
 
 				// TODO after a while the keyboard is disabled
@@ -218,14 +196,14 @@ console.dir(pjs.revoluteJoint.prototype);
 				createGround2(world);
 				createCar(world);
 				//createCar2(world);
-				createDust(world)
+				//createDust(world)
 
-				pjs.worldloop.basic(world, $('canvas').getContext('2d'))
+				pjs.worldloop.basicCanvas(world, $('canvas').getContext('2d'))
 			});
 			</script>
 	</head>
 	<body style="margin:0px;">
-		<canvas id="canvas" width='1200' height='500' style="background-color:#eeeeee;"></canvas>
+		<canvas id="canvas" width='2000' height='500' style="background-color:#eeeeee;"></canvas>
 	</body>
 
  </html>

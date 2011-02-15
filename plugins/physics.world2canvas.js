@@ -1,15 +1,24 @@
 /**
- * easybox2d plugin to display a world in canvas
+ * physics.js plugin to display a world in canvas
  * 
 */
 
+
+/**
+ * Define the namespace
+*/
 console.assert(typeof pjs.world2canvas === "undefined");
 pjs.world2canvas	= {};
 
 /**
  * Draw the world
+ *
+ * @param context canvas 2d context
 */
 pjs.world2canvas.drawWorld	= function(world, context) {
+	// clear the whole screen
+	context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+	
 	for (var j = world.m_jointList; j; j = j.m_next) {
 		pjs.world2canvas.drawJoint(j, context);
 	}
@@ -22,6 +31,8 @@ pjs.world2canvas.drawWorld	= function(world, context) {
 
 /**
  * Draw a joint
+ * 
+ * @param context canvas 2d context
 */
 pjs.world2canvas.drawJoint	= function(joint, context) {
 	var b1 = joint.m_body1;
@@ -64,6 +75,8 @@ pjs.world2canvas.drawJoint	= function(joint, context) {
 
 /**
  * Draw a shape
+ * 
+ * @param context canvas 2d context
 */
 pjs.world2canvas.drawShape	= function(shape, context) {
 	context.strokeStyle = '#ffffff';
