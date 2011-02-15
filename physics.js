@@ -68,7 +68,6 @@ eb2._global	= typeof window !== "undefined" ? window :
 			typeof global !== "undefined" ? global :
 			console.assert(false);
 
-
 eb2._jointIClassNames	= [
 	"b2DistanceJoint",
 	"b2GearJoint",

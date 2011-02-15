@@ -2,22 +2,22 @@
 
 help:
 	@echo "$$ make deploy"
-	@echo "\tDeploy the application on google AppEngine"
+	@echo "\tDeploy the application"
 	@echo "$$ make help"
 	@echo "\tDisplay inline help"
 
 deploy	: deployGhPage
 
 deployGhPage:
-	rm -rf /tmp/html5-buggyGhPages
-	(cd /tmp && git clone git@github.com:jeromeetienne/html5-buggy.git html5-buggyGhPages)
-	(cd /tmp/html5-buggyGhPages && git checkout gh-pages)
-	cp -a * /tmp/html5-buggyGhPages
-	(cd /tmp/html5-buggyGhPages && git add . && git commit -a -m "Another deployement" && git push origin gh-pages)
-	#rm -rf /tmp/html5-buggyGhPages
+	rm -rf /tmp/physics.jsGhPages
+	(cd /tmp && git clone git@github.com:jeromeetienne/physics.js.git physics.jsGhPages)
+	(cd /tmp/physics.jsGhPages && git checkout gh-pages)
+	cp -a * /tmp/physics.jsGhPages
+	(cd /tmp/physics.jsGhPages && git add . && git commit -a -m "Another deployement" && git push origin gh-pages)
+	#rm -rf /tmp/physics.jsGhPages
 
 docs:
-	dox --ribbon "http://github.com/jeromeetienne/EasyBox2d.js"	\
-		--title "EasyBox2d.js"					\
-		--desc "Easy API on top of Box2djs"			\
-		easyBox2d.js easyBox2d-drawworld.js > easyBox2djs.html
+	dox --ribbon "http://github.com/jeromeetienne/physics.js"	\
+		--title "Physics.js"					\
+		--desc "Physics engine in js - chained API (ala jQuery) on top of Box2d"	\
+		physics.js plugins/*.js > doc/physicsjs.html

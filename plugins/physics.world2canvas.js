@@ -3,7 +3,7 @@
  * 
 */
 
-console.assert(eb2.world2canvas === "undefined");
+console.assert(typeof eb2.world2canvas === "undefined");
 eb2.world2canvas	= {};
 
 /**
