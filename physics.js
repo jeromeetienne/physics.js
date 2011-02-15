@@ -5,7 +5,7 @@
  * - TODO add a plugin system
  * 
  * initial stuff
- * var slota	= eb2BoxDef().density(0.5).restitution(0).friction(1.0).size(50, 10).toBody().position(800, 30).toWorld(world)
+ * var slota	= pjsBoxDef().density(0.5).restitution(0).friction(1.0).size(50, 10).toBody().position(800, 30).toWorld(world)
  *
  *
  * TODO
@@ -28,7 +28,7 @@
  *   * code them and use dox to generate the tutorial
  *   * part of the easy
  * * DONE for shapeDefinition
- *   * support eb2.boxDef({attr1: val1})
+ *   * support pjs.boxDef({attr1: val1})
  *   * support .toBodyDef({attr1: val1})
  * * DONE add the draw world in canvas
  *   * in easyBox2d-drawworld
@@ -46,29 +46,29 @@
 /**
  * the wrapper on top of body+all joint are here
  * * TODO define all type of joint
- * * define a function which create a eb2 joint class based box2djs class
+ * * define a function which create a pjs joint class based box2djs class
  *   * do a instanceof and new
  * * using this function in toJoint()
  * * test this in index.html with the engine
  *   * first only the Joint
  *   * then the body
- *     * in jointDef.body(body1, body2) handle box2d body and eb2 body
+ *     * in jointDef.body(body1, body2) handle box2d body and pjs body
 */
 
 
 /**
  * Define global namespace
 */
-var eb2	= {};
+var pjs	= {};
 
 /**
  * discover global namespace. support browser+nodejs
 */
-eb2._global	= typeof window !== "undefined" ? window :
+pjs._global	= typeof window !== "undefined" ? window :
 			typeof global !== "undefined" ? global :
 			console.assert(false);
 
-eb2._jointIClassNames	= [
+pjs._jointIClassNames	= [
 	"b2DistanceJoint",
 	"b2GearJoint",
 	"b2MouseJoint",
@@ -86,7 +86,7 @@ eb2._jointIClassNames	= [
 /**
  * Create a base class
 */
-eb2._createBaseClass	= function(opts){
+pjs._createBaseClass	= function(opts){
 	// TODO to write
 	var iClassName	= opts._iClassName;
 	var className	= opts._className	|| (opts._iClassName.substr(2,1).toLowerCase() + opts._iClassName.substr(3));
@@ -95,10 +95,10 @@ eb2._createBaseClass	= function(opts){
 
 	// ctor
 	// TODO what is the purpose of this .fn ?
-	eb2[className]	= function(ctorDef) {
-		return new eb2[className].fn.init(ctorDef);
+	pjs[className]	= function(ctorDef) {
+		return new pjs[className].fn.init(ctorDef);
 	}
-	eb2[className].prototype	= {
+	pjs[className].prototype	= {
 		// add some debug info in the .prototype
 		_iClassName	: iClassName,
 		_className	: className,
@@ -118,11 +118,11 @@ eb2._createBaseClass	= function(opts){
 		}
 	}
 	// set the caller-defined _attrOne()
-	eb2[className].prototype['_attrOne']	= attrOneFct;
+	pjs[className].prototype['_attrOne']	= attrOneFct;
 	
 	// for each attribute, alias attrKey(val) to attr(key,val)
 	Object.keys(attrInfos).forEach(function(key){
-		eb2[className].prototype[key]	= function(val){
+		pjs[className].prototype[key]	= function(val){
 			return this._attrOne(key, val)
 		};
 	})
@@ -133,11 +133,11 @@ eb2._createBaseClass	= function(opts){
 	// copy bunch of copound helper (IIF key doesnt start with "_")
 	for(var fctName in opts){
 		if( fctName[0] === "_" )	continue;
-		eb2[className].prototype[fctName]	= opts[fctName];
+		pjs[className].prototype[fctName]	= opts[fctName];
 	}
 
 	// magic line i dont understand
-	eb2[className].prototype.init.prototype = eb2[className].fn = eb2[className].prototype;
+	pjs[className].prototype.init.prototype = pjs[className].fn = pjs[className].prototype;
 }
 
 
@@ -147,8 +147,8 @@ eb2._createBaseClass	= function(opts){
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-eb2._objDefaultAttrInfos	= function(iClassName){
-	var iClass	= eb2._global[iClassName].prototype;
+pjs._objDefaultAttrInfos	= function(iClassName){
+	var iClass	= pjs._global[iClassName].prototype;
 	var attrInfos	= {};
 	for(var key in iClass){
 		if( typeof iClass[key] !== "function" )	continue;
@@ -169,7 +169,7 @@ eb2._objDefaultAttrInfos	= function(iClassName){
 }
 
 
-eb2._objDefaultAttrOneFct	= function(key, val){
+pjs._objDefaultAttrOneFct	= function(key, val){
 	var keyCapitalized	= key.substring(0,1).toUpperCase() + key.substring(1);
 	// check that this key exist
 	console.assert(typeof this._attrInfos[key] !== "undefined")
@@ -194,47 +194,47 @@ eb2._objDefaultAttrOneFct	= function(key, val){
 /**
  * Create a class for Definitions
 */
-eb2._createObjClass	= function(opts){
+pjs._createObjClass	= function(opts){
 	var iClassName	= opts._iClassName;
-	opts._attrInfos	= opts._attrInfos	|| eb2._objDefaultAttrInfos(iClassName);
-	opts._attrOneFct= opts._attrOneFct	|| eb2._objDefaultAttrOneFct;
+	opts._attrInfos	= opts._attrInfos	|| pjs._objDefaultAttrInfos(iClassName);
+	opts._attrOneFct= opts._attrOneFct	|| pjs._objDefaultAttrOneFct;
 	opts.init	= opts.init		|| function(iClass){
 		this._iClass	= iClass;
 		return this;
 	}
-	return eb2._createBaseClass(opts)
+	return pjs._createBaseClass(opts)
 }
 
-eb2._createObjClass({
+pjs._createObjClass({
 	_iClassName	: "b2Body"
 })
 
 /**
  * Create a class for Definitions
 */
-eb2._createJointObjClass	= function(opts){
+pjs._createJointObjClass	= function(opts){
 	var iClassName	= opts._iClassName;
 	opts.init	= opts.init		|| function(iClass){
 		console.log("init iClassName", iClassName)
-		console.assert(iClass instanceof eb2._global[iClassName])
+		console.assert(iClass instanceof pjs._global[iClassName])
 		this._iClass	= iClass;
 		return this;
 	}
-	return eb2._createObjClass(opts)
+	return pjs._createObjClass(opts)
 }
 
-eb2._jointIClassNames.forEach(function(iClassName){
-	eb2._createJointObjClass({
+pjs._jointIClassNames.forEach(function(iClassName){
+	pjs._createJointObjClass({
 		_iClassName	: iClassName
 	})	
 })
 
-eb2._createJointObj	= function(iClass){
+pjs._createJointObj	= function(iClass){
 	console.log("iClass", iClass)
-	for(var i = 0; eb2._jointIClassNames.length;i++){
-		var iClassName	= eb2._jointIClassNames[i];
-		if( iClass instanceof eb2._global[iClassName] ){
-			return eb2.revoluteJoint(iClass);
+	for(var i = 0; pjs._jointIClassNames.length;i++){
+		var iClassName	= pjs._jointIClassNames[i];
+		if( iClass instanceof pjs._global[iClassName] ){
+			return pjs.revoluteJoint(iClass);
 		}
 	}
 	console.assert(false);
@@ -247,8 +247,8 @@ eb2._createJointObj	= function(iClass){
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-eb2._defDefaultAttrInfos	= function(iClassName){
-	var iClass	= new eb2._global[iClassName]()
+pjs._defDefaultAttrInfos	= function(iClassName){
+	var iClass	= new pjs._global[iClassName]()
 	var attrInfos	= {};
 	for(var key in iClass){
 		var type	= typeof iClass[key];
@@ -258,7 +258,7 @@ eb2._defDefaultAttrInfos	= function(iClassName){
 	return attrInfos;
 }
 
-eb2._defDefaultAttrOneFct	= function(key, val){
+pjs._defDefaultAttrOneFct	= function(key, val){
 	// check that this key exist
 	console.assert(typeof this._attrInfos[key] !== "undefined")
 	// get the attrInfo
@@ -288,52 +288,52 @@ eb2._defDefaultAttrOneFct	= function(key, val){
 /**
  * Create a class for Definitions
 */
-eb2._createBaseDefClass	= function(opts){
+pjs._createBaseDefClass	= function(opts){
 	var iClassName	= opts._iClassName;
-	opts._attrInfos	= opts._attrInfos	|| eb2._defDefaultAttrInfos(iClassName);
-	opts._attrOneFct= opts._attrOneFct	|| eb2._defDefaultAttrOneFct;
-	return eb2._createBaseClass(opts)
+	opts._attrInfos	= opts._attrInfos	|| pjs._defDefaultAttrInfos(iClassName);
+	opts._attrOneFct= opts._attrOneFct	|| pjs._defDefaultAttrOneFct;
+	return pjs._createBaseClass(opts)
 }
 
 /**
  * Create a ShapeDef Class
  *
  * - create the class itself, dont instanciate with the object of this class
- * - derived from eb2._createBaseDefClass
+ * - derived from pjs._createBaseDefClass
 */
-eb2._createShapeDefClass	= function(opts){
+pjs._createShapeDefClass	= function(opts){
 	var iClassName	= opts._iClassName;
 	opts.init	= function(attrs){
-		this._iClass	= new eb2._global[iClassName]();
+		this._iClass	= new pjs._global[iClassName]();
 		if( attrs )	this.attr(attrs);
 		return this;		
 	};
 	opts.toBodyDef	= function(attrs){
-		var bodyDef	= eb2.bodyDef(this._iClass)
+		var bodyDef	= pjs.bodyDef(this._iClass)
 		if( attrs )	bodyDef.attr(attrs);
 		return bodyDef;
 	};
-	return eb2._createBaseDefClass(opts)
+	return pjs._createBaseDefClass(opts)
 }
 
 /**
  * Create a JointDef Class
  *
  * - create the class itself, dont instanciate with the object of this class
- * - derived from eb2._createBaseDefClass
+ * - derived from pjs._createBaseDefClass
 */
-eb2._createJointDefClass	= function(opts){
+pjs._createJointDefClass	= function(opts){
 	var iClassName	= opts._iClassName;
 	opts.init	= function(attrs){
-		this._iClass	= new eb2._global[iClassName]();
+		this._iClass	= new pjs._global[iClassName]();
 		if( attrs )	this.attr(attrs);
 		return this;		
 	};
 	opts.toJoint	= function(world){
 		var joint	= world.CreateJoint(this._iClass);
-		return eb2._createJointObj(joint)
+		return pjs._createJointObj(joint)
 	}
-	return eb2._createBaseDefClass(opts)
+	return pjs._createBaseDefClass(opts)
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ eb2._createJointDefClass	= function(opts){
 /**
  * create the bodyDef class
 */
-eb2._createBaseDefClass({
+pjs._createBaseDefClass({
 	_iClassName	: "b2BodyDef",
 	init		: function(shapeDef){
 		this._iClass	= new b2BodyDef();
@@ -353,7 +353,7 @@ eb2._createBaseDefClass({
 		return this;
 	},
 	toBody		: function(world){
-		return eb2.body( world.CreateBody(this._iClass) );
+		return pjs.body( world.CreateBody(this._iClass) );
 	},
 	position	: function(x, y){
 		this._iClass.position.Set(x, y);
@@ -371,7 +371,7 @@ eb2._createBaseDefClass({
  * create all the Shape Definition class
 */
 
-eb2._createShapeDefClass({
+pjs._createShapeDefClass({
 	_iClassName	: "b2BoxDef",
 	size		: function(w, h){		// FIXIT extends is a max radius, not a size
 		console.assert(typeof w !== "undefined");
@@ -381,11 +381,11 @@ eb2._createShapeDefClass({
 	}
 });
 
-eb2._createShapeDefClass({
+pjs._createShapeDefClass({
 	_iClassName	: "b2CircleDef"
 });
 
-eb2._createShapeDefClass({
+pjs._createShapeDefClass({
 	_iClassName	: "b2PolyDef"
 });
 
@@ -397,19 +397,19 @@ eb2._createShapeDefClass({
 //////////////////////////////////////////////////////////////////////////////////
 
 
-eb2._createJointDefClass({
+pjs._createJointDefClass({
 	_iClassName	: "b2DistanceJointDef"
 })
 
-eb2._createJointDefClass({
+pjs._createJointDefClass({
 	_iClassName	: "b2GearJointDef"
 })
 
-eb2._createJointDefClass({
+pjs._createJointDefClass({
 	_iClassName	: "b2MouseJointDef"
 })
 
-eb2._createJointDefClass({
+pjs._createJointDefClass({
 	_iClassName	: "b2PrismaticJointDef",
 	anchor		: function(x, y){
 		console.assert(typeof x !== "undefined");
@@ -433,19 +433,19 @@ eb2._createJointDefClass({
 	body		: function(body1, body2){
 		console.assert(typeof body1 !== "undefined");
 		console.assert(typeof body2 !== "undefined");
-		if( body1 instanceof eb2.body )	body1	= body1.get();
-		if( body2 instanceof eb2.body )	body2	= body2.get();
+		if( body1 instanceof pjs.body )	body1	= body1.get();
+		if( body2 instanceof pjs.body )	body2	= body2.get();
 		this._iClass.body1	= body1;
 		this._iClass.body2	= body2;
 		return this;
 	}
 })
 
-eb2._createJointDefClass({
+pjs._createJointDefClass({
 	_iClassName	: "b2PulleyJointDef"
 })
 
-eb2._createJointDefClass({
+pjs._createJointDefClass({
 	_iClassName	: "b2RevoluteJointDef",
 	anchor		: function(x, y){
 		console.assert(typeof x !== "undefined");
@@ -456,8 +456,8 @@ eb2._createJointDefClass({
 	body		: function(body1, body2){
 		console.assert(typeof body1 !== "undefined");
 		console.assert(typeof body2 !== "undefined");
-		if( body1 instanceof eb2.body )	body1	= body1.get();
-		if( body2 instanceof eb2.body )	body2	= body2.get();
+		if( body1 instanceof pjs.body )	body1	= body1.get();
+		if( body2 instanceof pjs.body )	body2	= body2.get();
 		this._iClass.body1	= body1;
 		this._iClass.body2	= body2;
 		return this;

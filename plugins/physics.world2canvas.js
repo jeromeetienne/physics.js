@@ -3,19 +3,19 @@
  * 
 */
 
-console.assert(typeof eb2.world2canvas === "undefined");
-eb2.world2canvas	= {};
+console.assert(typeof pjs.world2canvas === "undefined");
+pjs.world2canvas	= {};
 
 /**
  * Draw the world
 */
-eb2.world2canvas.drawWorld	= function(world, context) {
+pjs.world2canvas.drawWorld	= function(world, context) {
 	for (var j = world.m_jointList; j; j = j.m_next) {
-		eb2.world2canvas.drawJoint(j, context);
+		pjs.world2canvas.drawJoint(j, context);
 	}
 	for (var b = world.m_bodyList; b; b = b.m_next) {
 		for (var s = b.GetShapeList(); s != null; s = s.GetNext()) {
-			eb2.world2canvas.drawShape(s, context);
+			pjs.world2canvas.drawShape(s, context);
 		}
 	}		
 }
@@ -23,7 +23,7 @@ eb2.world2canvas.drawWorld	= function(world, context) {
 /**
  * Draw a joint
 */
-eb2.world2canvas.drawJoint	= function(joint, context) {
+pjs.world2canvas.drawJoint	= function(joint, context) {
 	var b1 = joint.m_body1;
 	var b2 = joint.m_body2;
 	var x1 = b1.m_position;
@@ -65,7 +65,7 @@ eb2.world2canvas.drawJoint	= function(joint, context) {
 /**
  * Draw a shape
 */
-eb2.world2canvas.drawShape	= function(shape, context) {
+pjs.world2canvas.drawShape	= function(shape, context) {
 	context.strokeStyle = '#ffffff';
 	if (shape.density == 1.0) {
 		context.fillStyle = "red";
