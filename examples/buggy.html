@@ -16,15 +16,7 @@
 		
 		<script type="text/javascript">
 			jQuery.noConflict();
-			
-			function createWorld() {
-				return pjs.world.create({
-					minVertex	: [0, -1000],
-					maxVertex	: [2000, 1000],
-					gravity		: [0, 400]
-				})
-			}		
-			
+
 			function createGround2(world){
 				var createOne	= function(x1, y1, x2, y2, h){				
 					var dx		= x2-x1;
@@ -188,7 +180,12 @@
 
 			// main entry point
 			Event.observe(window, 'load', function() {
-				var world		= createWorld();		
+				var world	= pjs.world.create({
+					minVertex	: [0, -1000],
+					maxVertex	: [2000, 1000],
+					gravity		: [0, 400]
+				})
+
 				
 				createGround2(world);
 				createCar(world);
