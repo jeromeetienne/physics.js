@@ -7,6 +7,7 @@
 		<script src="../vendor/box2d/lib/prototype-1.6.0.2.js"></script>
 		<script src="../vendor/box2djs.js"></script>
 		<script src="../physics.js"></script>
+		<script src="../plugins/physics.world.js"></script>
 		<script src="../plugins/physics.world2canvas.js"></script>
 		<script src="../plugins/physics.worldloop.js"></script>
 
@@ -17,15 +18,11 @@
 			jQuery.noConflict();
 			
 			function createWorld() {
-				var worldAABB	= new b2AABB();
-				worldAABB.minVertex.Set(0, -1000);
-				worldAABB.maxVertex.Set(2000, 1000);
-				
-				var gravity	= new b2Vec2(0, 400);
-				var doSleep	= true;
-				world		= new b2World(worldAABB, gravity, doSleep);
-				console.log("world", world)
-				return world;
+				return pjs.world.create({
+					minVertex	: [0, -1000],
+					maxVertex	: [2000, 1000],
+					gravity		: [0, 400]
+				})
 			}		
 			
 			function createGround2(world){
